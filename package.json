@@ -1,0 +1,16 @@
+{
+  "name": "plant-texture",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bundle.js",
+  "author": "",
+  "dependencies": {
+    "gl-now": "^1.4.0"
+  },
+  "devDependencies": {
+    "rollup": "^0.34.3"
+  },
+  "scripts": {
+    "prepublish": "rollup -c rollup.config.js"
+  }
+}
