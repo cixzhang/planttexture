@@ -1,6 +1,6 @@
 
-import PlantTexture from './plant-texture.js';
+import { plantTextureCanvas } from './plant-texture.js';
 
-var texture = new PlantTexture();
-texture.mount(document.body);
+var canvas = plantTextureCanvas();
+document.body.appendChild(canvas);
 

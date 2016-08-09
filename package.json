@@ -4,9 +4,6 @@
   "description": "",
   "main": "bundle.js",
   "author": "",
-  "dependencies": {
-    "gl-now": "^1.4.0"
-  },
   "devDependencies": {
     "rollup": "^0.34.3"
   },

@@ -1,24 +1,34 @@
-(function (createShell) {
+(function () {
   'use strict';
 
-  createShell = 'default' in createShell ? createShell['default'] : createShell;
+  function plantTextureCanvas(plant, canvas = document.createElement('canvas')) {
+    /* eslint no-console: [0] */
+    var gl = getGL(canvas);
+    if (!gl) {
+      console.log('Cannot find WebGL context.');
+      return;
+    }
 
-  function PlantTexture(plant, element = document.createElement('div')) {
-    this.plant = plant;
-    this.element = element;
-    this.shell = createShell({
-      element: element
-    });
+    // TODO: render canvas
+
+    return canvas;
   }
 
-  PlantTexture.prototype = {};
+  function getGL(canvas) {
+    var gl = (
+      canvas.getContext('webgl') ||
+      canvas.getContext('webgl-experimental') ||
+      canvas.getContext('experimental-webgl')
+    );
 
-  PlantTexture.prototype.mount = function (parent)  {
-    parent.appendChild(this.element);
-    return this.element;
-  };
+    if (!gl) {
+      console.log('Cannot find WebGL context.');
+      return false;
+    }
+    return gl;
+  }
 
-  var texture = new PlantTexture();
-  texture.mount(document.body);
+  var canvas = plantTextureCanvas();
+  document.body.appendChild(canvas);
 
-}(createShell));
+}());
