@@ -35,3 +35,14 @@ Rendering flowers:
 Rendering seeds:
   - show bolls if the plant has the bolls trait
 
+Rendering stems: (1)
+  - no appearance for monocots
+  - mainly increase length and width for stalks
+  - mostly length for trees until a certain height, keep a spread
+  - mostly spread for shrubs
+  - equal spread and height otherwise
+  - for wood trait the count also increases width
+  - trait vs growth: use trait to determine how the stem grows and growth to determine
+  how far along it is
+  - trait stem > 3: grow upwards mainly
+  - trait stem = 0: make mostly branching

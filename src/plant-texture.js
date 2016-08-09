@@ -1,3 +1,8 @@
+import GLBigTriangle from 'gl-big-triangle';
+import createShader from 'gl-shader';
+
+import shader_v from './shader_v.glsl';
+import shader_f from './shader_f.glsl';
 
 export function plantTexturePNG(plant, canvas = document.createElement('canvas')) {
   plantTextureCanvas(plant, canvas);
@@ -12,7 +17,7 @@ export function plantTextureCanvas(plant, canvas = document.createElement('canva
     return;
   }
 
-  // TODO: render canvas
+  render(gl);
 
   return canvas;
 }
@@ -29,4 +34,16 @@ function getGL(canvas) {
     return false;
   }
   return gl;
+}
+
+function render(gl) {
+  // TODO: render plant
+  var triangle = GLBigTriangle(gl);
+  var shader = createShader(gl, shader_v, shader_f);
+  shader.bind();
+  triangle.bind();
+  triangle.draw();
+
+  shader.dispose();
+  triangle.unbind();
 }
