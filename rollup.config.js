@@ -1,6 +1,7 @@
 export default {
-  entry: 'src/main.js',
-  dest: 'bundle.js',
-  format: 'iife',
-  indent: '  '
+  entry: 'src/plant-texture.js',
+  dest: 'plant-texture.js',
+  format: 'umd',
+  indent: '  ',
+  moduleName: 'PlantTexture'
 }

@@ -2,7 +2,7 @@
   "name": "plant-texture",
   "version": "1.0.0",
   "description": "",
-  "main": "bundle.js",
+  "main": "plant-texture.js",
   "author": "",
   "devDependencies": {
     "rollup": "^0.34.3"

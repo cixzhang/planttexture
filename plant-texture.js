@@ -1,19 +1,27 @@
-(function () {
-  'use strict';
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (factory((global.PlantTexture = global.PlantTexture || {})));
+}(this, function (exports) { 'use strict';
 
-  function plantTextureCanvas(plant, canvas = document.createElement('canvas')) {
+  function createPNG(plant, canvas = document.createElement('canvas')) {
+    createCanvas(plant, canvas);
+    return canvas.toDataURL('image/png');
+  }
+
+  function createCanvas(plant, canvas = document.createElement('canvas')) {
     /* eslint no-console: [0] */
     var ctx = canvas.getContext('2d');
     var width = plant.type === 'tree' ? 32 : 16;
     var height = plant.type === 'stalk' || plant.type === 'tree' ? 32 : 16;
 
-    var imageData = generatePlantImage(plant, width, height);
+    var imageData = createImageData(plant, width, height);
     ctx.putImageData(imageData, width, height);
 
     return canvas;
   }
 
-  function generatePlantImage(plant, width, height) {
+  function createImageData(plant, width, height) {
     var stemPixels = generateStemPixels(plant, width, height);
     return new ImageData(stemPixels, width, height);
   }
@@ -38,9 +46,9 @@
   //   return [x, y];
   // }
 
-  var canvas = plantTextureCanvas({
-    type: 'herb'
-  });
-  document.body.appendChild(canvas);
+  exports.createPNG = createPNG;
+  exports.createCanvas = createCanvas;
 
-}());
+  Object.defineProperty(exports, '__esModule', { value: true });
+
+}));
