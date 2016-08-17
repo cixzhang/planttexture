@@ -6,12 +6,20 @@
 </head>
 
 <body>
+  <style>
+    img { image-rendering: pixelated; }
+  </style>
   <script type="text/javascript" src="plant-texture.js"></script>
   <script>
-    var canvas = PlantTexture.createCanvas({
+    var png = PlantTexture.createPNG({
       type: 'herb'
     });
-    document.body.appendChild(canvas);
+    var image = document.createElement('img');
+    image.src = png;
+    image.height = 64;
+    image.width = 64;
+
+    document.body.appendChild(image);
   </script>
 </body>
 </html>

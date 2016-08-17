@@ -9,7 +9,9 @@ export function createCanvas(plant, canvas = document.createElement('canvas')) {
   var ctx = canvas.getContext('2d');
 
   var imageData = createImageData(plant);
-  ctx.putImageData(imageData, imageData.width, imageData.height);
+  canvas.height = imageData.height;
+  canvas.width = imageData.width;
+  ctx.putImageData(imageData, 0, 0);
 
   return canvas;
 }

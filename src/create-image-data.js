@@ -10,7 +10,9 @@ export default function createImageData(plant) {
 
 function generateStemPixels(plant, width, height) {
   var pixels = new Uint8ClampedArray(4 * width * height);
-  var center = Math.floor(width / 2);
-  drawPixel(pixels, width, center, 0, [255, 0, 0, 255]);
+  drawPixel(pixels, width, 0, 0, [255, 0, 0, 255]);
+  drawPixel(pixels, width, width - 1, 0, [0, 255, 0, 255]);
+  drawPixel(pixels, width, width - 1, height - 1, [0, 0, 255, 255]);
+  drawPixel(pixels, width, 0, height - 1, [0, 0, 0, 255]);
   return pixels;
 }
