@@ -14,7 +14,21 @@
     var plant = {
       type: 'herb',
       growth: {"stage":2,"ticks":2,"cycle":0,"energy":3,"max_energy":100,"death_ticks":0,"stage_ticks":1,"last_tick":-122656665622.21655,"roots":39,"stems":41,"leaves":3,"flowers":0,"seeds":0,"affinity_light":50,"affinity_water":30,"affinity_soil":60,"tick_rate":1,"stage_rate":1,"cost_root":15,"cost_stem":27,"cost_leaf":10,"cost_flower":45,"cost_seed":40},
-      expression: {'traits':{'edible_seed':1,'wood':1,'edible_root':1,'edible_stem':2,'flower':1,'yellow':1,'':2,'red':1,'stem':1,'dicot':1,'blue':1},'counts':[{'edible_seed':1,'wood':1,'edible_root':1,'edible_stem':1},{'edible_root':1,'edible_stem':2,'flower':1,'yellow':1},{'':2},{'red':1,'stem':1,'yellow':1,'dicot':1,'blue':1}]}
+      expression: {
+        'traits':{
+          'edible_seed':1,
+          'wood':1,
+          'edible_root':1,
+          'edible_stem':2,
+          'flower':1,
+          'yellow':1,
+          '':2,
+          'red':1,
+          'stem':1,
+          'dicot':1,
+          'blue':1
+        },
+        'counts':[{'edible_seed':1,'wood':1,'edible_root':1,'edible_stem':1},{'edible_root':1,'edible_stem':2,'flower':1,'yellow':1},{'':2},{'red':1,'stem':1,'yellow':1,'dicot':1,'blue':1}]}
     };
     var png = PlantTexture.createPNG(plant);
     var image = document.createElement('img');

@@ -29,36 +29,31 @@
     var pixels = new Uint8ClampedArray(4 * width * height);
     var stems = plant.growth.stems;
     var draw = (x, y) => drawPixel(pixels, width, x, y, [255, 0, 0, 255]);
-    var stemType = Math.max(plant.expression.traits.stem, 3);
-    var growthNode = {
-      position: [width / 2, 0],
-      direction: [1, 0],
-      next: null
-    };
+    var stemType = Math.min(plant.expression.traits.stem, 3);
+    var nodes = [{
+      position: [width / 2, height],
+      direction: [0, -1]
+    }];
 
     var i = 0;
-    var x, y;
-    var currentNode = growthNode;
+    var x, y, node;
     while (stems) {
-      x = currentNode.position[0];
-      y = currentNode.position[1];
+      node = nodes[i % nodes.length];
+      x = node.position[0];
+      y = node.position[1];
       draw(x, y);
-      currentNode.position[0] += currentNode.direction[0];
-      currentNode.position[1] += currentNode.direction[1];
+      node.position[0] += node.direction[0];
+      node.position[1] += node.direction[1];
 
-      if (stemType % 3 && i % (stemType % 3)) {
-        currentNode.next = {
-          position: [currentNode.position[0], currentNode.position[1]],
-          direction: [currentNode.direction[0], currentNode.direction[1] + 1],
-          next: {
-            position: [currentNode.position[0], currentNode.position[1]],
-            direction: [currentNode.direction[0], currentNode.direction[1] - 1],
-            next: null
-          }
-        }
+      if (!(i % (stemType % 3 + 2))) {
+        node.direction = [node.direction[0] + 1, node.direction[1]];
+
+        nodes.push({
+          position: [node.position[0], node.position[1]],
+          direction: [node.direction[0] - 2, node.direction[1]]
+        });
       }
 
-      currentNode = growthNode.next || growthNode;
       stems--;
       i++;
     }
