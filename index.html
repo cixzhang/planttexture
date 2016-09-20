@@ -3,40 +3,118 @@
 
 <head>
   <meta charset="utf-8" />
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/styles/default.min.css">
 </head>
 
 <body>
   <style>
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    pre {
+      margin: 0;
+      overflow: auto;
+      background-color: #fafafa;
+      padding: 20px;
+    }
     img { image-rendering: pixelated; }
+    .container {
+      display: flex;
+      height: 100%;
+      padding: 20px;
+    }
+    .container * {
+      flex: 1;
+    }
+    #plant-image {
+      width: 320px;
+      height: auto;
+    }
+    #plant-image-mini {
+      width: 64px;
+      height: auto;
+    }
+    #plant-description {
+      margin: 0;
+      font-size: 0.9em;
+      background-color: transparent;
+    }
   </style>
-  <script type="text/javascript" src="plant-texture.js"></script>
-  <script>
-    var plant = {
-      type: 'herb',
-      growth: {"stage":2,"ticks":2,"cycle":0,"energy":3,"max_energy":100,"death_ticks":0,"stage_ticks":1,"last_tick":-122656665622.21655,"roots":39,"stems":41,"leaves":3,"flowers":0,"seeds":0,"affinity_light":50,"affinity_water":30,"affinity_soil":60,"tick_rate":1,"stage_rate":1,"cost_root":15,"cost_stem":27,"cost_leaf":10,"cost_flower":45,"cost_seed":40},
-      expression: {
-        'traits':{
-          'edible_seed':1,
-          'wood':1,
-          'edible_root':1,
-          'edible_stem':2,
-          'flower':1,
-          'yellow':1,
-          '':2,
-          'red':1,
-          'stem':2,
-          'dicot':1,
-          'blue':1
-        },
-        'counts':[{'edible_seed':1,'wood':1,'edible_root':1,'edible_stem':1},{'edible_root':1,'edible_stem':2,'flower':1,'yellow':1},{'':2},{'red':1,'stem':1,'yellow':1,'dicot':1,'blue':1}]}
-    };
-    var png = PlantTexture.createPNG(plant);
-    var image = document.createElement('img');
-    image.src = png;
-    image.height = 64;
-    image.width = 64;
 
-    document.body.appendChild(image);
+  <div class="container">
+    <div>
+      <img id="plant-image" />
+      <img id="plant-image-mini"/>
+    </div>
+    <pre>
+     <code id="plant-description" class="json" contenteditable>
+{
+  "type": "herb",
+  "growth": {
+    "stage":2,
+    "death_ticks":0,
+    "roots":39,
+    "stems":41,
+    "leaves":3,
+    "flowers":0,
+    "seeds":0
+  },
+  "expression": {
+    "traits": {
+      "edible_seed":1,
+      "wood":1,
+      "edible_root":1,
+      "edible_stem":2,
+      "flower":1,
+      "yellow":1,
+      "red":1,
+      "stem":2,
+      "dicot":1,
+      "blue":1
+    },
+    "counts": [
+      {"edible_seed":1,"wood":1,"edible_root":1,"edible_stem":1},
+      {"edible_root":1,"edible_stem":2,"flower":1,"yellow":1},
+      {"red":1,"stem":1,"yellow":1,"dicot":1,"blue":1}
+    ]
+  }
+}
+      </code>
+    </pre>
+  </div>
+
+  <script type="text/javascript" src="plant-texture.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/highlight.min.js"></script>
+  <script>
+    var image = document.getElementById('plant-image');
+    var mini = document.getElementById('plant-image-mini');
+    var description = document.getElementById('plant-description');
+
+    description.addEventListener('input', render);
+
+    render();
+
+    function render() {
+      var plant = parse(description.innerText);
+      if (!plant) return;
+
+      var png = PlantTexture.createPNG(plant);
+      image.src = png;
+      mini.src = png;
+      hljs.highlightBlock(description);
+    }
+
+    function parse(value) {
+      var plant;
+      try {
+        plant = JSON.parse(value);
+      } catch (e) {
+        console.log(e);
+      }
+      return plant;
+    }
   </script>
 </body>
 </html>

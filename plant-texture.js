@@ -51,7 +51,6 @@
       y = Math.max(node.position[1], 0);
       incr = normalize(node.direction);
 
-      console.log(x, y);
       draw(Math.floor(x), Math.floor(y));
 
       node.position[0] += incr[0];
