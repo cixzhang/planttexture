@@ -3,7 +3,6 @@
 
 <head>
   <meta charset="utf-8" />
-  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/styles/default.min.css">
 </head>
 
 <body>
@@ -86,7 +85,6 @@
   </div>
 
   <script type="text/javascript" src="plant-texture.js"></script>
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/highlight.min.js"></script>
   <script>
     var image = document.getElementById('plant-image');
     var mini = document.getElementById('plant-image-mini');
@@ -103,7 +101,6 @@
       var png = PlantTexture.createPNG(plant);
       image.src = png;
       mini.src = png;
-      hljs.highlightBlock(description);
     }
 
     function parse(value) {
