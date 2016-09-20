@@ -18,3 +18,11 @@ export function drawPixel(pixels, width, x, y, rgba) {
   pixels[index+3] = rgba[3];
   return pixels;
 }
+
+export function normalize(vec) {
+  var magn2 = vec[0] * vec[0] + vec[1] * vec[1];
+  if (!magn2) return vec;
+
+  var magn = Math.sqrt(magn2);
+  return [vec[0]/magn, vec[1]/magn];
+}

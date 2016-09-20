@@ -1,4 +1,4 @@
-import { drawPixel } from './helpers.js';
+import { drawPixel, normalize } from './helpers.js';
 
 export default function createImageData(plant) {
   var width = plant.type === 'tree' ? 32 : 16;
@@ -19,14 +19,18 @@ function generateStemPixels(plant, width, height) {
   }];
 
   var i = 0;
-  var x, y, node;
+  var x, y, node, incr;
   while (stems) {
     node = nodes[i % nodes.length];
-    x = node.position[0];
-    y = node.position[1];
-    draw(x, y);
-    node.position[0] += node.direction[0];
-    node.position[1] += node.direction[1];
+    x = Math.max(node.position[0], 0);
+    y = Math.max(node.position[1], 0);
+    incr = normalize(node.direction);
+
+    console.log(x, y);
+    draw(Math.floor(x), Math.floor(y));
+
+    node.position[0] += incr[0];
+    node.position[1] += incr[1];
 
     if (!(i % (stemType % 3 + 2))) {
       node.direction = [node.direction[0] + 1, node.direction[1]];

@@ -17,6 +17,14 @@
     return pixels;
   }
 
+  function normalize(vec) {
+    var magn2 = vec[0] * vec[0] + vec[1] * vec[1];
+    if (!magn2) return vec;
+
+    var magn = Math.sqrt(magn2);
+    return [vec[0]/magn, vec[1]/magn];
+  }
+
   function createImageData(plant) {
     var width = plant.type === 'tree' ? 32 : 16;
     var height = plant.type === 'stalk' || plant.type === 'tree' ? 32 : 16;
@@ -36,14 +44,18 @@
     }];
 
     var i = 0;
-    var x, y, node;
+    var x, y, node, incr;
     while (stems) {
       node = nodes[i % nodes.length];
-      x = node.position[0];
-      y = node.position[1];
-      draw(x, y);
-      node.position[0] += node.direction[0];
-      node.position[1] += node.direction[1];
+      x = Math.max(node.position[0], 0);
+      y = Math.max(node.position[1], 0);
+      incr = normalize(node.direction);
+
+      console.log(x, y);
+      draw(Math.floor(x), Math.floor(y));
+
+      node.position[0] += incr[0];
+      node.position[1] += incr[1];
 
       if (!(i % (stemType % 3 + 2))) {
         node.direction = [node.direction[0] + 1, node.direction[1]];
