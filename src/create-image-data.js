@@ -1,5 +1,5 @@
 import { drawPixel, normalize } from './helpers.js';
-import getColor from './colors.js';
+import getColor, { lighten } from './colors.js';
 
 export default function createImageData(plant) {
   var width = plant.type === 'tree' ? 32 : 16;
@@ -10,14 +10,14 @@ export default function createImageData(plant) {
 }
 
 function generateStemPixels(plant, width, height) {
+  var draw = (x, y, color) => drawPixel(pixels, width, x, y, color);
   var pixels = new Uint8ClampedArray(4 * width * height);
   var stems = plant.growth.stems;
-  var color = getColor('stem', plant);
-  var draw = (x, y) => drawPixel(pixels, width, x, y, color);
   var stemType = plant.expression.traits.stem + 2;
   var nodes = [{
     position: [width / 2, height],
-    direction: [0, -1]
+    direction: [0, -1],
+    color: getColor('stem', plant)
   }];
 
   var i = 1;
@@ -28,17 +28,19 @@ function generateStemPixels(plant, width, height) {
     y = Math.max(node.position[1], 0);
     incr = normalize(node.direction);
 
-    draw(Math.floor(x), Math.floor(y));
+    draw(Math.floor(x), Math.floor(y), node.color);
 
     node.position[0] += incr[0];
     node.position[1] += incr[1];
+    node.color = lighten(node.color, 5);
 
     if (!(i % stemType) && node.direction[0] <= (1 / stemType)) {
       node.direction = [node.direction[0] + 1, node.direction[1]];
 
       nodes.push({
         position: [node.position[0], node.position[1]],
-        direction: [node.direction[0] - 2, node.direction[1]]
+        direction: [node.direction[0] - 2, node.direction[1]],
+        color: node.color
       });
     } else {
       node.direction = [node.direction[0] / 2, node.direction[1]]

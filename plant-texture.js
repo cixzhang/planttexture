@@ -17696,18 +17696,18 @@ var   nativeMin$12 = Math.min;
     lodash.prototype[iteratorSymbol$1] = seq.toIterator;
   }
 
-  const baseColors = {
+  var baseColors = {
     stem: [0, 0.3, 0.2]
   };
 
   function getColor(type, plant) {
-    let parsed = clone(baseColors[type]);
-    let colors = [0, 0, 0];
+    var parsed = clone(baseColors[type]);
+    var colors = [0, 0, 0];
 
     plant.expression.counts.forEach((countObj) => {
-      let red = 0;
-      let yellow = 0;
-      let blue = 0;
+      var red = 0;
+      var yellow = 0;
+      var blue = 0;
       if (type in countObj) {
         red = countObj.red || 0;
         yellow = countObj.yellow || 0;
@@ -17726,6 +17726,16 @@ var   nativeMin$12 = Math.min;
     ];
   }
 
+  function lighten(color, amt) {
+    var lighter = clone(color);
+
+    lighter[0] = color[0] + amt;
+    lighter[1] = color[1] + amt;
+    lighter[2] = color[2] + amt;
+
+    return lighter;
+  }
+
   function createImageData(plant) {
     var width = plant.type === 'tree' ? 32 : 16;
     var height = plant.type === 'stalk' || plant.type === 'tree' ? 32 : 16;
@@ -17735,14 +17745,14 @@ var   nativeMin$12 = Math.min;
   }
 
   function generateStemPixels(plant, width, height) {
+    var draw = (x, y, color) => drawPixel(pixels, width, x, y, color);
     var pixels = new Uint8ClampedArray(4 * width * height);
     var stems = plant.growth.stems;
-    var color = getColor('stem', plant);
-    var draw = (x, y) => drawPixel(pixels, width, x, y, color);
     var stemType = plant.expression.traits.stem + 2;
     var nodes = [{
       position: [width / 2, height],
-      direction: [0, -1]
+      direction: [0, -1],
+      color: getColor('stem', plant)
     }];
 
     var i = 1;
@@ -17753,17 +17763,19 @@ var   nativeMin$12 = Math.min;
       y = Math.max(node.position[1], 0);
       incr = normalize(node.direction);
 
-      draw(Math.floor(x), Math.floor(y));
+      draw(Math.floor(x), Math.floor(y), node.color);
 
       node.position[0] += incr[0];
       node.position[1] += incr[1];
+      node.color = lighten(node.color, 5);
 
       if (!(i % stemType) && node.direction[0] <= (1 / stemType)) {
         node.direction = [node.direction[0] + 1, node.direction[1]];
 
         nodes.push({
           position: [node.position[0], node.position[1]],
-          direction: [node.direction[0] - 2, node.direction[1]]
+          direction: [node.direction[0] - 2, node.direction[1]],
+          color: node.color
         });
       } else {
         node.direction = [node.direction[0] / 2, node.direction[1]]
