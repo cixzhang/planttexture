@@ -17736,14 +17736,6 @@ var   nativeMin$12 = Math.min;
     return lighter;
   }
 
-  function createImageData(plant) {
-    var width = plant.type === 'tree' ? 32 : 16;
-    var height = plant.type === 'stalk' || plant.type === 'tree' ? 32 : 16;
-
-    var stemPixels = generateStemPixels(plant, width, height);
-    return new ImageData(stemPixels, width, height);
-  }
-
   function generateStemPixels(plant, width, height) {
     var draw = (x, y, color) => drawPixel(pixels, width, x, y, color);
     var pixels = new Uint8ClampedArray(4 * width * height);
@@ -17785,6 +17777,14 @@ var   nativeMin$12 = Math.min;
       i++;
     }
     return pixels;
+  }
+
+  function createImageData(plant) {
+    var width = plant.type === 'tree' ? 32 : 16;
+    var height = plant.type === 'stalk' || plant.type === 'tree' ? 32 : 16;
+
+    var stemPixels = generateStemPixels(plant, width, height);
+    return new ImageData(stemPixels, width, height);
   }
 
   function createPNG(plant, canvas = document.createElement('canvas')) {

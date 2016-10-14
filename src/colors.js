@@ -5,7 +5,7 @@ var baseColors = {
   stem: [0, 0.3, 0.2]
 };
 
-export default function getColor(type, plant) {
+export function getColor(type, plant) {
   var parsed = clone(baseColors[type]);
   var colors = [0, 0, 0];
 
