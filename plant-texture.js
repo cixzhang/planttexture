@@ -17736,15 +17736,15 @@ var   nativeMin$12 = Math.min;
     return lighter;
   }
 
-  function generateStemPixels(plant, width, height) {
+  function generateStemPixels(plant, width, height, pixels) {
     var draw = (x, y, color) => drawPixel(pixels, width, x, y, color);
-    var pixels = new Uint8ClampedArray(4 * width * height);
     var stems = plant.growth.stems;
     var stemType = plant.expression.traits.stem + 2;
     var nodes = [{
       position: [width / 2, height],
       direction: [0, -1],
-      color: getColor('stem', plant)
+      color: getColor('stem', plant),
+      growthNode: []
     }];
 
     var i = 1;
@@ -17767,24 +17767,45 @@ var   nativeMin$12 = Math.min;
         nodes.push({
           position: [node.position[0], node.position[1]],
           direction: [node.direction[0] - 2, node.direction[1]],
-          color: node.color
+          color: node.color,
+          growthNode: []
         });
       } else {
-        node.direction = [node.direction[0] / 2, node.direction[1]]
+        node.direction = [node.direction[0] / 2, node.direction[1]];
+        node.growthNode.push([node.position[0], node.position[1]]);
       }
 
       stems--;
       i++;
     }
-    return pixels;
+    return nodes;
+  }
+
+  function generateLeafPixels(plant, width, height, pixels, nodes) {
+    var draw = (x, y, color) => drawPixel(pixels, width, x, y, color);
+    var color = [255, 0, 0, 255];
+
+    nodes.forEach(function (node) {
+      node.growthNode.forEach(function (nodule) {
+        var x = nodule[0];
+        var y = nodule[1];
+        draw(Math.floor(x), Math.floor(y), color);
+      });
+    });
   }
 
   function createImageData(plant) {
     var width = plant.type === 'tree' ? 32 : 16;
     var height = plant.type === 'stalk' || plant.type === 'tree' ? 32 : 16;
+    var pixels = new Uint8ClampedArray(4 * width * height);
+    var draw = function (gen, nodes) {
+      return gen(plant, width, height, pixels, nodes);
+    };
 
-    var stemPixels = generateStemPixels(plant, width, height);
-    return new ImageData(stemPixels, width, height);
+    var nodes = draw(generateStemPixels);
+    draw(generateLeafPixels, nodes);
+
+    return new ImageData(pixels, width, height);
   }
 
   function createPNG(plant, canvas = document.createElement('canvas')) {

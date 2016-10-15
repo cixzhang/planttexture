@@ -1,15 +1,15 @@
 import { drawPixel, normalize } from './helpers.js';
 import { getColor, lighten } from './colors.js';
 
-export default function generateStemPixels(plant, width, height) {
+export default function generateStemPixels(plant, width, height, pixels) {
   var draw = (x, y, color) => drawPixel(pixels, width, x, y, color);
-  var pixels = new Uint8ClampedArray(4 * width * height);
   var stems = plant.growth.stems;
   var stemType = plant.expression.traits.stem + 2;
   var nodes = [{
     position: [width / 2, height],
     direction: [0, -1],
-    color: getColor('stem', plant)
+    color: getColor('stem', plant),
+    growthNode: []
   }];
 
   var i = 1;
@@ -32,14 +32,16 @@ export default function generateStemPixels(plant, width, height) {
       nodes.push({
         position: [node.position[0], node.position[1]],
         direction: [node.direction[0] - 2, node.direction[1]],
-        color: node.color
+        color: node.color,
+        growthNode: []
       });
     } else {
-      node.direction = [node.direction[0] / 2, node.direction[1]]
+      node.direction = [node.direction[0] / 2, node.direction[1]];
+      node.growthNode.push([node.position[0], node.position[1]]);
     }
 
     stems--;
     i++;
   }
-  return pixels;
+  return nodes;
 }
