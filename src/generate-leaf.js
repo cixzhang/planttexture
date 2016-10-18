@@ -5,6 +5,8 @@ export default function generateLeafPixels(plant, width, height, pixels, nodes) 
   var color = [255, 0, 0, 255];
 
   nodes.forEach(function (node) {
+    color[1] += 100;
+    color[2] += 50;
     node.growthNode.forEach(function (nodule) {
       var x = nodule[0];
       var y = nodule[1];
