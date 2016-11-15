@@ -17781,17 +17781,31 @@ var   nativeMin$12 = Math.min;
     return nodes;
   }
 
+  var leaves = [
+    [[1, 0], [2, 0], [2, -1], [3, -1]],
+    [[-1, 0], [-2, 0], [-2, -1], [-3, -1]]
+  ];
+
   function generateLeafPixels(plant, width, height, pixels, nodes) {
     var draw = (x, y, color) => drawPixel(pixels, width, x, y, color);
-    var color = [255, 0, 0, 255];
+    var color = [0, 60, 50, 255];
 
     nodes.forEach(function (node) {
-      color[1] += 100;
-      color[2] += 50;
-      node.growthNode.forEach(function (nodule) {
+      var leaf = 0;
+      color = [0, 50, 20, 255];
+      node.growthNode.forEach(function (nodule, i) {
+        if ((i + 1) % 2) return;
+
+        leaf = (leaf + 1) % 2;
         var x = nodule[0];
         var y = nodule[1];
-        draw(Math.floor(x), Math.floor(y), color);
+        leaves[leaf].forEach(function (position) {
+          draw(Math.floor(x + position[0]), Math.floor(y + position[1]), color);
+        });
+
+        color[0] += 20;
+        color[1] += 20;
+        color[2] += 20;
       });
     });
   }
