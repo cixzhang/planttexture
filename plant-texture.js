@@ -17789,6 +17789,7 @@ var   nativeMin$12 = Math.min;
   function generateLeafPixels(plant, width, height, pixels, nodes) {
     var draw = (x, y, color) => drawPixel(pixels, width, x, y, color);
     var leaves = plant.growth.leaves;
+    var leafSize = (plant.expression.traits.leaf || 0) + 1;
     var color = [0, 60, 50, 255];
 
     nodes.forEach(function (node, nodeI) {
@@ -17801,7 +17802,8 @@ var   nativeMin$12 = Math.min;
         leaf = (leaf + 1) % 2;
         var x = nodule[0];
         var y = nodule[1];
-        leafPixels[leaf].forEach(function (position) {
+        leafPixels[leaf].forEach(function (position, i) {
+          if (i > leafSize) return;
           draw(Math.floor(x + position[0]), Math.floor(y + position[1]), color);
         });
 
