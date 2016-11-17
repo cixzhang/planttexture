@@ -11,12 +11,15 @@ export default function generateLeafPixels(plant, width, height, pixels, nodes) 
   var leafSize = (plant.expression.traits.leaf || 0) + 1;
   var color = [0, 60, 50, 255];
 
-  nodes.forEach(function (node, nodeI) {
+  nodes.forEach(function (node) {
+    var count = 0;
     var leaf = 0;
     color = [0, 50, 20, 255];
-    node.growthNode.forEach(function (nodule, i) {
-      if (nodeI + i > leaves) return;
-      if ((i + 1) % 2) return;
+
+    for (var i = node.growthNode.length - 1; i > 0; i--) {
+      var nodule = node.growthNode[i];
+      if (count >= leaves) break;
+      if (i % 2) continue;
 
       leaf = (leaf + 1) % 2;
       var x = nodule[0];
@@ -29,6 +32,7 @@ export default function generateLeafPixels(plant, width, height, pixels, nodes) 
       color[0] += 20;
       color[1] += 20;
       color[2] += 20;
-    });
+      count++;
+    }
   });
 }
