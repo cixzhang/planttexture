@@ -2,7 +2,8 @@
 import { clone } from 'lodash-es';
 
 var baseColors = {
-  stem: [0, 0.3, 0.2]
+  stem: [0, 0.3, 0.2],
+  leaf: [0, 0.3, 0.1]
 };
 
 export function getColor(type, plant) {
