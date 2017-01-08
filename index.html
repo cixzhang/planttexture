@@ -21,19 +21,15 @@
     img { image-rendering: pixelated; }
     .container {
       display: flex;
+      flex-direction: column;
       height: 100%;
       padding: 20px;
     }
-    .container * {
+    .container div {
+      flex: 2;
+    }
+    .container pre {
       flex: 1;
-    }
-    #plant-image {
-      width: 320px;
-      height: auto;
-    }
-    #plant-image-mini {
-      width: 64px;
-      height: auto;
     }
     #plant-description {
       margin: 0;
@@ -100,6 +96,12 @@
 
       var png = PlantTexture.createPNG(plant);
       image.src = png;
+
+      image.onload = function () {
+        image.width = image.naturalWidth * 5;
+        image.height = image.naturalHeight * 5;
+      };
+
       mini.src = png;
     }
 
