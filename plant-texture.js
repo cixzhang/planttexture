@@ -17819,6 +17819,12 @@ var   nativeMin$12 = Math.min;
     });
   }
 
+  function computeTotalSize(plantType, rows, columns) {
+    var width = plantType === 'tree' ? 32 : 16;
+    var height = plantType === 'stalk' || plantType === 'tree' ? 32 : 16;
+    return [width * columns, height * rows];
+  }
+
   function createImageData(plant) {
     var width = plant.type === 'tree' ? 32 : 16;
     var height = plant.type === 'stalk' || plant.type === 'tree' ? 32 : 16;
@@ -17856,11 +17862,16 @@ var   nativeMin$12 = Math.min;
     canvas = document.createElement('canvas')
   ) {
     var ctx = canvas.getContext('2d');
-    var rowStart = 0;
+    var totalSize = computeTotalSize(type, stemTypes.length, stemGrowths.length);
+    canvas.width = totalSize[0];
+    canvas.height = totalSize[1];
+
+    var heightAnchor = 0;
+    var widthAnchor = 0;
 
     stemTypes.forEach(function (stemType) {
       var imageData;
-      var columnStart = 0;
+      widthAnchor = 0;
 
       stemGrowths.forEach(function (stemGrowth) {
         var plant = {
@@ -17877,11 +17888,12 @@ var   nativeMin$12 = Math.min;
         };
 
         imageData = createImageData(plant);
-        ctx.putImageData(imageData, columnStart, rowStart);
-        columnStart += imageData.width;
+        ctx.putImageData(imageData, widthAnchor, heightAnchor);
+        widthAnchor += imageData.width;
       });
-      rowStart += imageData.height;
+      heightAnchor += imageData.height;
     });
+    return canvas;
   }
 
   function createStemSetPNG(

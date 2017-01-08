@@ -1,4 +1,4 @@
-import createImageData from './create-image-data.js';
+import createImageData, { computeTotalSize } from './create-image-data.js';
 
 export function createCanvas(plant, canvas = document.createElement('canvas')) {
   var ctx = canvas.getContext('2d');
@@ -23,11 +23,16 @@ export function createStemSet(
   canvas = document.createElement('canvas')
 ) {
   var ctx = canvas.getContext('2d');
-  var rowStart = 0;
+  var totalSize = computeTotalSize(type, stemTypes.length, stemGrowths.length);
+  canvas.width = totalSize[0];
+  canvas.height = totalSize[1];
+
+  var heightAnchor = 0;
+  var widthAnchor = 0;
 
   stemTypes.forEach(function (stemType) {
     var imageData;
-    var columnStart = 0;
+    widthAnchor = 0;
 
     stemGrowths.forEach(function (stemGrowth) {
       var plant = {
@@ -44,11 +49,12 @@ export function createStemSet(
       };
 
       imageData = createImageData(plant);
-      ctx.putImageData(imageData, columnStart, rowStart);
-      columnStart += imageData.width;
+      ctx.putImageData(imageData, widthAnchor, heightAnchor);
+      widthAnchor += imageData.width;
     });
-    rowStart += imageData.height;
+    heightAnchor += imageData.height;
   });
+  return canvas;
 }
 
 export function createStemSetPNG(

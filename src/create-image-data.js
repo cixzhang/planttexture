@@ -1,6 +1,12 @@
 import generateStemPixels from './generate-stem';
 import generateLeafPixels from './generate-leaf';
 
+export function computeTotalSize(plantType, rows, columns) {
+  var width = plantType === 'tree' ? 32 : 16;
+  var height = plantType === 'stalk' || plantType === 'tree' ? 32 : 16;
+  return [width * columns, height * rows];
+}
+
 export default function createImageData(plant) {
   var width = plant.type === 'tree' ? 32 : 16;
   var height = plant.type === 'stalk' || plant.type === 'tree' ? 32 : 16;
