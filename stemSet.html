@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+</head>
+
+<body>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    pre {
+      margin: 0;
+      overflow: auto;
+      background-color: #fafafa;
+      padding: 20px;
+    }
+    img { image-rendering: pixelated; }
+    .container {
+      display: flex;
+      height: 100%;
+      padding: 20px;
+    }
+    .container * {
+      flex: 1;
+    }
+    #plant-image {
+      width: 320px;
+      height: auto;
+    }
+    #plant-image-mini {
+      width: 64px;
+      height: auto;
+    }
+    #plant-description {
+      margin: 0;
+      font-size: 0.9em;
+      background-color: transparent;
+    }
+  </style>
+
+  <div class="container">
+    <div>
+      <img id="plant-image" />
+      <img id="plant-image-mini"/>
+    </div>
+    <pre>
+     <code id="plant-description" class="json" contenteditable>
+{
+  "type": "herb",
+  "stemTypes": [0, 1, 2, 3],
+  "stemGrowths": [0, 10, 20, 30, 40, 50, 60, 70, 80]
+}
+      </code>
+    </pre>
+  </div>
+
+  <script type="text/javascript" src="plant-texture.js"></script>
+  <script>
+    var image = document.getElementById('plant-image');
+    var mini = document.getElementById('plant-image-mini');
+    var description = document.getElementById('plant-description');
+
+    description.addEventListener('input', render);
+
+    render();
+
+    function render() {
+      var plant = parse(description.innerText);
+      if (!plant) return;
+
+      var png = PlantTexture.createStemSetPNG(plant.type, plant.stemTypes, plant.stemGrowths);
+      image.src = png;
+      mini.src = png;
+    }
+
+    function parse(value) {
+      var plant;
+      try {
+        plant = JSON.parse(value);
+      } catch (e) {
+        console.log(e);
+      }
+      return plant;
+    }
+  </script>
+</body>
+</html>

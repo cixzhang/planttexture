@@ -17705,19 +17705,21 @@ var   nativeMin$12 = Math.min;
     var parsed = clone(baseColors[type]);
     var colors = [0, 0, 0];
 
-    plant.expression.counts.forEach((countObj) => {
-      var red = 0;
-      var yellow = 0;
-      var blue = 0;
-      if (type in countObj) {
-        red = countObj.red || 0;
-        yellow = countObj.yellow || 0;
-        blue = countObj.blue || 0;
-      }
-      colors[0] += yellow / 2 + red;
-      colors[1] += yellow / 2 + blue / 2;
-      colors[2] += blue;
-    });
+    if (plant.expression.counts) {
+      plant.expression.counts.forEach((countObj) => {
+        var red = 0;
+        var yellow = 0;
+        var blue = 0;
+        if (type in countObj) {
+          red = countObj.red || 0;
+          yellow = countObj.yellow || 0;
+          blue = countObj.blue || 0;
+        }
+        colors[0] += yellow / 2 + red;
+        colors[1] += yellow / 2 + blue / 2;
+        colors[2] += blue;
+      });
+    }
 
     return [
       (parsed[0] + colors[0] / 5) * 255,
@@ -17831,11 +17833,6 @@ var   nativeMin$12 = Math.min;
     return new ImageData(pixels, width, height);
   }
 
-  function createPNG(plant, canvas = document.createElement('canvas')) {
-    createCanvas(plant, canvas);
-    return canvas.toDataURL('image/png');
-  }
-
   function createCanvas(plant, canvas = document.createElement('canvas')) {
     var ctx = canvas.getContext('2d');
 
@@ -17847,8 +17844,60 @@ var   nativeMin$12 = Math.min;
     return canvas;
   }
 
-  exports.createPNG = createPNG;
+  function createPNG(plant, canvas = document.createElement('canvas')) {
+    createCanvas(plant, canvas);
+    return canvas.toDataURL('image/png');
+  }
+
+  function createStemSet(
+    type,
+    stemTypes,
+    stemGrowths,
+    canvas = document.createElement('canvas')
+  ) {
+    var ctx = canvas.getContext('2d');
+    var rowStart = 0;
+
+    stemTypes.forEach(function (stemType) {
+      var imageData;
+      var columnStart = 0;
+
+      stemGrowths.forEach(function (stemGrowth) {
+        var plant = {
+          growth: {
+            stems: stemGrowth,
+            leaves: 0
+          },
+          expression: {
+            traits: {
+              stem: stemType,
+              leaf: 0
+            }
+          }
+        };
+
+        imageData = createImageData(plant);
+        ctx.putImageData(imageData, columnStart, rowStart);
+        columnStart += imageData.width;
+      });
+      rowStart += imageData.height;
+    });
+  }
+
+  function createStemSetPNG(
+    type,
+    stemTypes,
+    stemGrowths,
+    canvas = document.createElement('canvas')
+  ) {
+    createStemSet(type, stemTypes, stemGrowths, canvas);
+    return canvas.toDataURL('image/png');
+  }
+
   exports.createCanvas = createCanvas;
+  exports.createPNG = createPNG;
+  exports.createStemSet = createStemSet;
+  exports.createStemSetPNG = createStemSetPNG;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
