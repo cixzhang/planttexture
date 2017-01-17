@@ -1,16 +1,17 @@
 import { drawPixel, normalize } from './helpers.js';
 import { getColor, lighten } from './colors.js';
 
-export default function generateStemPixels(plant, width, height, pixels) {
+export default function generateStemPixels(plant, width, height, pixels, nodes = []) {
   var draw = (x, y, color) => drawPixel(pixels, width, x, y, color);
   var stems = plant.growth.stems;
   var stemType = plant.expression.traits.stem + 2;
-  var nodes = [{
+
+  nodes.push({
     position: [width / 2, height],
     direction: [0, -1],
     color: getColor('stem', plant),
     growthNode: []
-  }];
+  });
 
   var i = 1;
   var x, y, node, incr;

@@ -27,6 +27,7 @@
     }
     .container div {
       flex: 2;
+      overflow: auto;
     }
     .container pre {
       flex: 1;
@@ -47,34 +48,8 @@
      <code id="plant-description" class="json" contenteditable>
 {
   "type": "herb",
-  "growth": {
-    "stage":2,
-    "death_ticks":0,
-    "roots":19,
-    "stems":20,
-    "leaves":3,
-    "flowers":0,
-    "seeds":0
-  },
-  "expression": {
-    "traits": {
-      "edible_seed":1,
-      "wood":1,
-      "edible_root":1,
-      "leaf":2,
-      "flower":1,
-      "yellow":1,
-      "red":1,
-      "stem":2,
-      "dicot":1,
-      "blue":1
-    },
-    "counts": [
-      {"edible_seed":1,"wood":1,"edible_root":1,"edible_stem":1},
-      {"edible_root":1,"leaf":2,"flower":1,"yellow":1},
-      {"red":1,"stem":1,"yellow":1,"dicot":1,"blue":1}
-    ]
-  }
+  "stemTypes": [0, 1, 2, 3],
+  "stemGrowths": [5, 10, 20, 30, 40, 50, 60, 70, 80]
 }
       </code>
     </pre>
@@ -94,15 +69,16 @@
       var plant = parse(description.innerText);
       if (!plant) return;
 
-      var png = PlantTexture.createPNG(plant);
-      image.src = png;
-
+      var plantTex = new PlantTexture();
+      plantTex.generateStems(plant.type, plant.stemTypes, plant.stemGrowths);
+      image.src = plantTex.png;
       image.onload = function () {
         image.width = image.naturalWidth * 5;
         image.height = image.naturalHeight * 5;
       };
 
-      mini.src = png;
+      mini.src = plantTex.png;
+      console.log(plantTex.nodeSet);
     }
 
     function parse(value) {

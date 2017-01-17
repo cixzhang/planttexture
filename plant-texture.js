@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-  typeof define === 'function' && define.amd ? define(['exports'], factory) :
-  (factory((global.PlantTexture = global.PlantTexture || {})));
-}(this, function (exports) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global.PlantTexture = factory());
+}(this, function () { 'use strict';
 
   function coordToIndex(width, x, y) {
     return (y * width + x) * 4;
@@ -17739,16 +17739,17 @@ var   nativeMin$12 = Math.min;
     return lighter;
   }
 
-  function generateStemPixels(plant, width, height, pixels) {
+  function generateStemPixels(plant, width, height, pixels, nodes = []) {
     var draw = (x, y, color) => drawPixel(pixels, width, x, y, color);
     var stems = plant.growth.stems;
     var stemType = plant.expression.traits.stem + 2;
-    var nodes = [{
+
+    nodes.push({
       position: [width / 2, height],
       direction: [0, -1],
       color: getColor('stem', plant),
       growthNode: []
-    }];
+    });
 
     var i = 1;
     var x, y, node, incr;
@@ -17825,7 +17826,7 @@ var   nativeMin$12 = Math.min;
     return [width * columns, height * rows];
   }
 
-  function createImageData(plant) {
+  function createImageData(plant, nodes) {
     var width = plant.type === 'tree' ? 32 : 16;
     var height = plant.type === 'stalk' || plant.type === 'tree' ? 32 : 16;
     var pixels = new Uint8ClampedArray(4 * width * height);
@@ -17833,33 +17834,18 @@ var   nativeMin$12 = Math.min;
       return gen(plant, width, height, pixels, nodes);
     };
 
-    var nodes = draw(generateStemPixels);
+    draw(generateStemPixels, nodes);
     draw(generateLeafPixels, nodes);
 
     return new ImageData(pixels, width, height);
-  }
-
-  function createCanvas(plant, canvas = document.createElement('canvas')) {
-    var ctx = canvas.getContext('2d');
-
-    var imageData = createImageData(plant);
-    canvas.height = imageData.height;
-    canvas.width = imageData.width;
-    ctx.putImageData(imageData, 0, 0);
-
-    return canvas;
-  }
-
-  function createPNG(plant, canvas = document.createElement('canvas')) {
-    createCanvas(plant, canvas);
-    return canvas.toDataURL('image/png');
   }
 
   function createStemSet(
     type,
     stemTypes,
     stemGrowths,
-    canvas = document.createElement('canvas')
+    canvas = document.createElement('canvas'),
+    nodeSet = []
   ) {
     var ctx = canvas.getContext('2d');
     var totalSize = computeTotalSize(type, stemTypes.length, stemGrowths.length);
@@ -17874,6 +17860,7 @@ var   nativeMin$12 = Math.min;
       widthAnchor = 0;
 
       stemGrowths.forEach(function (stemGrowth) {
+        var nodes = []
         var plant = {
           growth: {
             stems: stemGrowth,
@@ -17887,10 +17874,12 @@ var   nativeMin$12 = Math.min;
           }
         };
 
-        imageData = createImageData(plant);
+        imageData = createImageData(plant, nodes);
         ctx.putImageData(imageData, widthAnchor, heightAnchor);
         widthAnchor += imageData.width;
+        nodeSet.push(nodes);
       });
+
       heightAnchor += imageData.height;
     });
     return canvas;
@@ -17900,17 +17889,25 @@ var   nativeMin$12 = Math.min;
     type,
     stemTypes,
     stemGrowths,
-    canvas = document.createElement('canvas')
+    canvas = document.createElement('canvas'),
+    nodeSet = []
   ) {
-    createStemSet(type, stemTypes, stemGrowths, canvas);
+    createStemSet(type, stemTypes, stemGrowths, canvas, nodeSet);
     return canvas.toDataURL('image/png');
   }
 
-  exports.createCanvas = createCanvas;
-  exports.createPNG = createPNG;
-  exports.createStemSet = createStemSet;
-  exports.createStemSetPNG = createStemSetPNG;
+  class PlantTexture {
+    constructor() {
+      this.canvas = document.createElement('canvas');
+      this.png = null;
+      this.nodeSet = [];
+    }
 
-  Object.defineProperty(exports, '__esModule', { value: true });
+    generateStems(type, stemTypes, stemGrowths) {
+      this.png = createStemSetPNG(type, stemTypes, stemGrowths, this.canvas, this.nodeSet);
+    }
+  }
+
+  return PlantTexture;
 
 }));
