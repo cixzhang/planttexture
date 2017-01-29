@@ -1,3 +1,5 @@
+import { flatten } from 'lodash-es';
+
 import generateStemPixels from './generate-stem';
 import generateLeafPixels from './generate-leaf';
 
@@ -42,7 +44,7 @@ export function createStemSet(
   stemTypes,
   stemGrowths,
   canvas = document.createElement('canvas'),
-  nodeSet = []
+  frames = []
 ) {
   var ctx = canvas.getContext('2d');
   var totalSize = computeTotalSize(type, stemTypes.length, stemGrowths.length);
@@ -73,8 +75,13 @@ export function createStemSet(
 
       imageData = createImageData(plant, nodes);
       ctx.putImageData(imageData, widthAnchor, heightAnchor);
+      frames.push({
+        name: `stem-${stemType}-${stemGrowth}`,
+        frame: { x: widthAnchor, y: heightAnchor, w: imageData.width, h: imageData.height },
+        markers: flatten(nodes.map(node => node.growthNode))
+      });
+
       widthAnchor += imageData.width;
-      nodeSet.push(nodes);
     });
 
     heightAnchor += imageData.height;
@@ -87,8 +94,8 @@ export function createStemSetPNG(
   stemTypes,
   stemGrowths,
   canvas = document.createElement('canvas'),
-  nodeSet = []
+  frames = []
 ) {
-  createStemSet(type, stemTypes, stemGrowths, canvas, nodeSet);
+  createStemSet(type, stemTypes, stemGrowths, canvas, frames);
   return canvas.toDataURL('image/png');
 }

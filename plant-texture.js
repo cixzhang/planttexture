@@ -4,27 +4,6 @@
   (global.PlantTexture = factory());
 }(this, function () { 'use strict';
 
-  function coordToIndex(width, x, y) {
-    return (y * width + x) * 4;
-  }
-
-  function drawPixel(pixels, width, x, y, rgba) {
-    var index = coordToIndex(width, x, y);
-    pixels[index+0] = rgba[0];
-    pixels[index+1] = rgba[1];
-    pixels[index+2] = rgba[2];
-    pixels[index+3] = rgba[3];
-    return pixels;
-  }
-
-  function normalize(vec) {
-    var magn2 = vec[0] * vec[0] + vec[1] * vec[1];
-    if (!magn2) return vec;
-
-    var magn = Math.sqrt(magn2);
-    return [vec[0]/magn, vec[1]/magn];
-  }
-
   /**
    * Checks if `value` is object-like. A value is object-like if it's not `null`
    * and has a `typeof` result of "object".
@@ -17696,6 +17675,27 @@ var   nativeMin$12 = Math.min;
     lodash.prototype[iteratorSymbol$1] = seq.toIterator;
   }
 
+  function coordToIndex(width, x, y) {
+    return (y * width + x) * 4;
+  }
+
+  function drawPixel(pixels, width, x, y, rgba) {
+    var index = coordToIndex(width, x, y);
+    pixels[index+0] = rgba[0];
+    pixels[index+1] = rgba[1];
+    pixels[index+2] = rgba[2];
+    pixels[index+3] = rgba[3];
+    return pixels;
+  }
+
+  function normalize(vec) {
+    var magn2 = vec[0] * vec[0] + vec[1] * vec[1];
+    if (!magn2) return vec;
+
+    var magn = Math.sqrt(magn2);
+    return [vec[0]/magn, vec[1]/magn];
+  }
+
   var baseColors = {
     stem: [0, 0.3, 0.2],
     leaf: [0, 0.3, 0.1]
@@ -17845,7 +17845,7 @@ var   nativeMin$12 = Math.min;
     stemTypes,
     stemGrowths,
     canvas = document.createElement('canvas'),
-    nodeSet = []
+    frames = []
   ) {
     var ctx = canvas.getContext('2d');
     var totalSize = computeTotalSize(type, stemTypes.length, stemGrowths.length);
@@ -17876,8 +17876,13 @@ var   nativeMin$12 = Math.min;
 
         imageData = createImageData(plant, nodes);
         ctx.putImageData(imageData, widthAnchor, heightAnchor);
+        frames.push({
+          name: `stem-${stemType}-${stemGrowth}`,
+          frame: { x: widthAnchor, y: heightAnchor, w: imageData.width, h: imageData.height },
+          markers: flatten(nodes.map(node => node.growthNode))
+        });
+
         widthAnchor += imageData.width;
-        nodeSet.push(nodes);
       });
 
       heightAnchor += imageData.height;
@@ -17890,9 +17895,9 @@ var   nativeMin$12 = Math.min;
     stemTypes,
     stemGrowths,
     canvas = document.createElement('canvas'),
-    nodeSet = []
+    frames = []
   ) {
-    createStemSet(type, stemTypes, stemGrowths, canvas, nodeSet);
+    createStemSet(type, stemTypes, stemGrowths, canvas, frames);
     return canvas.toDataURL('image/png');
   }
 
@@ -17900,11 +17905,23 @@ var   nativeMin$12 = Math.min;
     constructor() {
       this.canvas = document.createElement('canvas');
       this.png = null;
-      this.nodeSet = [];
+      this.frames = [];
     }
 
     generateStems(type, stemTypes, stemGrowths) {
-      this.png = createStemSetPNG(type, stemTypes, stemGrowths, this.canvas, this.nodeSet);
+      this.png = createStemSetPNG(type, stemTypes, stemGrowths, this.canvas, this.frames);
+    }
+
+    toJSON() {
+      const meta = {
+        image: 'plant-texture.png',
+        tile: 16
+      };
+
+      return {
+        frames: this.frames,
+        meta
+      };
     }
   }
 
