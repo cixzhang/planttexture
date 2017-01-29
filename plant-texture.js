@@ -17877,7 +17877,7 @@ var   nativeMin$12 = Math.min;
         imageData = createImageData(plant, nodes);
         ctx.putImageData(imageData, widthAnchor, heightAnchor);
         frames.push({
-          name: `stem-${stemType}-${stemGrowth}`,
+          name: `stem.${stemType}.${stemGrowth}`,
           frame: { x: widthAnchor, y: heightAnchor, w: imageData.width, h: imageData.height },
           markers: flatten(nodes.map(node => node.growthNode))
         });
