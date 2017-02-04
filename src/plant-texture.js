@@ -7,7 +7,7 @@ class PlantTexture {
     this.frames = [];
   }
 
-  generateStems(type, stemTypes, stemGrowths) {
+  generateStems({type, stemTypes, stemGrowths}) {
     createStemSet({type, stemTypes, stemGrowths, canvas: this.canvas, frames: this.frames});
   }
 
