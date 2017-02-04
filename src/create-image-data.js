@@ -9,7 +9,7 @@ export function computeTotalSize(plantType, rows, columns) {
   return [width * columns, height * rows];
 }
 
-export function createImageData(plant, nodes) {
+export function createImageData(plant, nodes, ImageDataClass = ImageData) {
   var width = plant.type === 'tree' ? 32 : 16;
   var height = plant.type === 'stalk' || plant.type === 'tree' ? 32 : 16;
   var pixels = new Uint8ClampedArray(4 * width * height);
@@ -20,7 +20,7 @@ export function createImageData(plant, nodes) {
   draw(generateStemPixels, nodes);
   draw(generateLeafPixels, nodes);
 
-  return new ImageData(pixels, width, height);
+  return new ImageDataClass(pixels, width, height);
 }
 
 export function createCanvas(plant, canvas = document.createElement('canvas')) {
@@ -45,7 +45,7 @@ export function createStemSet({
   stemGrowths,
   canvas = document.createElement('canvas'),
   frames = []
-}) {
+}, ImageDataClass) {
   var ctx = canvas.getContext('2d');
   var totalSize = computeTotalSize(type, stemTypes.length, stemGrowths.length);
   canvas.width = totalSize[0];
@@ -73,7 +73,7 @@ export function createStemSet({
         }
       };
 
-      imageData = createImageData(plant, nodes);
+      imageData = createImageData(plant, nodes, ImageDataClass);
       ctx.putImageData(imageData, widthAnchor, heightAnchor);
       frames.push({
         name: `stem.${stemType}.${stemGrowth}`,

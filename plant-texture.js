@@ -17826,7 +17826,7 @@ var   nativeMin$12 = Math.min;
     return [width * columns, height * rows];
   }
 
-  function createImageData(plant, nodes) {
+  function createImageData(plant, nodes, ImageDataClass = ImageData) {
     var width = plant.type === 'tree' ? 32 : 16;
     var height = plant.type === 'stalk' || plant.type === 'tree' ? 32 : 16;
     var pixels = new Uint8ClampedArray(4 * width * height);
@@ -17837,7 +17837,7 @@ var   nativeMin$12 = Math.min;
     draw(generateStemPixels, nodes);
     draw(generateLeafPixels, nodes);
 
-    return new ImageData(pixels, width, height);
+    return new ImageDataClass(pixels, width, height);
   }
 
   function createStemSet({
@@ -17846,7 +17846,7 @@ var   nativeMin$12 = Math.min;
     stemGrowths,
     canvas = document.createElement('canvas'),
     frames = []
-  }) {
+  }, ImageDataClass) {
     var ctx = canvas.getContext('2d');
     var totalSize = computeTotalSize(type, stemTypes.length, stemGrowths.length);
     canvas.width = totalSize[0];
@@ -17874,7 +17874,7 @@ var   nativeMin$12 = Math.min;
           }
         };
 
-        imageData = createImageData(plant, nodes);
+        imageData = createImageData(plant, nodes, ImageDataClass);
         ctx.putImageData(imageData, widthAnchor, heightAnchor);
         frames.push({
           name: `stem.${stemType}.${stemGrowth}`,
@@ -17891,14 +17891,21 @@ var   nativeMin$12 = Math.min;
   }
 
   class PlantTexture {
-    constructor(canvas) {
+    constructor(canvas, ImageDataClass = ImageData) {
       this.canvas = canvas || document.createElement('canvas');
       this.png = null;
       this.frames = [];
+      this.ImageData = ImageDataClass;
     }
 
     generateStems({type, stemTypes, stemGrowths}) {
-      createStemSet({type, stemTypes, stemGrowths, canvas: this.canvas, frames: this.frames});
+      createStemSet({
+        type,
+        stemTypes,
+        stemGrowths,
+        canvas: this.canvas,
+        frames: this.frames
+      }, this.ImageData);
     }
 
     toPNG() {
