@@ -97,13 +97,14 @@
 
       var plantTex = new PlantTexture();
       plantTex.generateStems(plant.type, plant.stemTypes, plant.stemGrowths);
-      image.src = plantTex.png;
+      var pngSource = plantTex.toPNG();
+      image.src = pngSource;
       image.onload = function () {
         image.width = image.naturalWidth * 5;
         image.height = image.naturalHeight * 5;
       };
 
-      mini.src = plantTex.png;
+      mini.src = pngSource;
       output.innerText = JSON.stringify(plantTex, null, 2);
     }
 

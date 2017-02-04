@@ -39,13 +39,13 @@ export function createPNG(plant, canvas = document.createElement('canvas')) {
   return canvas.toDataURL('image/png');
 }
 
-export function createStemSet(
+export function createStemSet({
   type,
   stemTypes,
   stemGrowths,
   canvas = document.createElement('canvas'),
   frames = []
-) {
+}) {
   var ctx = canvas.getContext('2d');
   var totalSize = computeTotalSize(type, stemTypes.length, stemGrowths.length);
   canvas.width = totalSize[0];
@@ -96,6 +96,6 @@ export function createStemSetPNG(
   canvas = document.createElement('canvas'),
   frames = []
 ) {
-  createStemSet(type, stemTypes, stemGrowths, canvas, frames);
+  createStemSet({type, stemTypes, stemGrowths, canvas, frames});
   return canvas.toDataURL('image/png');
 }

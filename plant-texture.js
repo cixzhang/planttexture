@@ -17840,13 +17840,13 @@ var   nativeMin$12 = Math.min;
     return new ImageData(pixels, width, height);
   }
 
-  function createStemSet(
+  function createStemSet({
     type,
     stemTypes,
     stemGrowths,
     canvas = document.createElement('canvas'),
     frames = []
-  ) {
+  }) {
     var ctx = canvas.getContext('2d');
     var totalSize = computeTotalSize(type, stemTypes.length, stemGrowths.length);
     canvas.width = totalSize[0];
@@ -17890,26 +17890,19 @@ var   nativeMin$12 = Math.min;
     return canvas;
   }
 
-  function createStemSetPNG(
-    type,
-    stemTypes,
-    stemGrowths,
-    canvas = document.createElement('canvas'),
-    frames = []
-  ) {
-    createStemSet(type, stemTypes, stemGrowths, canvas, frames);
-    return canvas.toDataURL('image/png');
-  }
-
   class PlantTexture {
-    constructor() {
-      this.canvas = document.createElement('canvas');
+    constructor(canvas) {
+      this.canvas = canvas || document.createElement('canvas');
       this.png = null;
       this.frames = [];
     }
 
     generateStems(type, stemTypes, stemGrowths) {
-      this.png = createStemSetPNG(type, stemTypes, stemGrowths, this.canvas, this.frames);
+      createStemSet({type, stemTypes, stemGrowths, canvas: this.canvas, frames: this.frames});
+    }
+
+    toPNG() {
+      return this.canvas.toDataURL('image/png');
     }
 
     toJSON() {

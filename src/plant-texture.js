@@ -1,14 +1,18 @@
-import { createStemSetPNG } from './create-image-data.js';
+import { createStemSet } from './create-image-data.js';
 
 class PlantTexture {
-  constructor() {
-    this.canvas = document.createElement('canvas');
+  constructor(canvas) {
+    this.canvas = canvas || document.createElement('canvas');
     this.png = null;
     this.frames = [];
   }
 
   generateStems(type, stemTypes, stemGrowths) {
-    this.png = createStemSetPNG(type, stemTypes, stemGrowths, this.canvas, this.frames);
+    createStemSet({type, stemTypes, stemGrowths, canvas: this.canvas, frames: this.frames});
+  }
+
+  toPNG() {
+    return this.canvas.toDataURL('image/png');
   }
 
   toJSON() {
