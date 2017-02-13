@@ -17845,7 +17845,8 @@ var   nativeMin$12 = Math.min;
     stemTypes,
     stemGrowths,
     canvas = document.createElement('canvas'),
-    frames = []
+    frames = [],
+    name = 'stem'
   }, ImageDataClass) {
     var ctx = canvas.getContext('2d');
     var totalSize = computeTotalSize(type, stemTypes.length, stemGrowths.length);
@@ -17877,7 +17878,7 @@ var   nativeMin$12 = Math.min;
         imageData = createImageData(plant, nodes, ImageDataClass);
         ctx.putImageData(imageData, widthAnchor, heightAnchor);
         frames.push({
-          name: `stem.${stemType}.${stemGrowth}`,
+          name: `${name}.${stemType}.${stemGrowth}`,
           frame: { x: widthAnchor, y: heightAnchor, w: imageData.width, h: imageData.height },
           markers: flatten(nodes.map(node => node.growthNode))
         });
@@ -17891,7 +17892,12 @@ var   nativeMin$12 = Math.min;
   }
 
   class PlantTexture {
-    constructor(canvas, ImageDataClass = ImageData) {
+    constructor({
+      canvas,
+      ImageDataClass = ImageData,
+      name
+    }) {
+      this.name = name;
       this.canvas = canvas || document.createElement('canvas');
       this.png = null;
       this.frames = [];
@@ -17914,7 +17920,7 @@ var   nativeMin$12 = Math.min;
 
     toJSON() {
       const meta = {
-        image: 'plant-texture.png',
+        image: `${this.name}.png`,
         tile: 16
       };
 
