@@ -44,7 +44,8 @@ export function createStemSet({
   stemTypes,
   stemGrowths,
   canvas = document.createElement('canvas'),
-  frames = []
+  frames = [],
+  name = 'stem'
 }, ImageDataClass) {
   var ctx = canvas.getContext('2d');
   var totalSize = computeTotalSize(type, stemTypes.length, stemGrowths.length);
@@ -76,7 +77,7 @@ export function createStemSet({
       imageData = createImageData(plant, nodes, ImageDataClass);
       ctx.putImageData(imageData, widthAnchor, heightAnchor);
       frames.push({
-        name: `stem.${stemType}.${stemGrowth}`,
+        name: `${name}.${stemType}.${stemGrowth}`,
         frame: { x: widthAnchor, y: heightAnchor, w: imageData.width, h: imageData.height },
         markers: flatten(nodes.map(node => node.growthNode))
       });
@@ -94,8 +95,9 @@ export function createStemSetPNG(
   stemTypes,
   stemGrowths,
   canvas = document.createElement('canvas'),
-  frames = []
+  frames = [],
+  name
 ) {
-  createStemSet({type, stemTypes, stemGrowths, canvas, frames});
+  createStemSet({type, stemTypes, stemGrowths, canvas, frames, name});
   return canvas.toDataURL('image/png');
 }

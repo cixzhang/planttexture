@@ -1,7 +1,12 @@
 import { createStemSet } from './create-image-data.js';
 
 class PlantTexture {
-  constructor(canvas, ImageDataClass = ImageData) {
+  constructor({
+    canvas,
+    ImageDataClass = ImageData,
+    name
+  }) {
+    this.name = name;
     this.canvas = canvas || document.createElement('canvas');
     this.png = null;
     this.frames = [];
@@ -24,7 +29,7 @@ class PlantTexture {
 
   toJSON() {
     const meta = {
-      image: 'plant-texture.png',
+      image: `${this.name}.png`,
       tile: 16
     };
 
