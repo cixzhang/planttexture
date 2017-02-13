@@ -19,7 +19,8 @@ class PlantTexture {
       stemTypes,
       stemGrowths,
       canvas: this.canvas,
-      frames: this.frames
+      frames: this.frames,
+      name: this.name
     }, this.ImageData);
   }
 
