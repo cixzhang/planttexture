@@ -1,4 +1,4 @@
-import { flatten } from 'lodash-es';
+import { compact, last } from 'lodash-es';
 
 import generateStemPixels from './generate-stem';
 import generateLeafPixels from './generate-leaf';
@@ -79,7 +79,9 @@ export function createStemSet({
       frames.push({
         name: `${name}.${stemType}.${stemGrowth}`,
         frame: { x: widthAnchor, y: heightAnchor, w: imageData.width, h: imageData.height },
-        markers: flatten(nodes.map(node => node.growthNode))
+        meta: {
+          nodules: compact(nodes.map(node => last(node.growthNode)))
+        }
       });
 
       widthAnchor += imageData.width;

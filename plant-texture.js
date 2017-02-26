@@ -17880,7 +17880,9 @@ var   nativeMin$12 = Math.min;
         frames.push({
           name: `${name}.${stemType}.${stemGrowth}`,
           frame: { x: widthAnchor, y: heightAnchor, w: imageData.width, h: imageData.height },
-          markers: flatten(nodes.map(node => node.growthNode))
+          meta: {
+            nodules: compact(nodes.map(node => last(node.growthNode)))
+          }
         });
 
         widthAnchor += imageData.width;
