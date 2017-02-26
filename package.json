@@ -5,13 +5,11 @@
   "main": "plant-texture.js",
   "author": "",
   "devDependencies": {
+    "lodash-es": "^4.16.2",
     "rollup": "^0.34.3",
     "rollup-plugin-node-resolve": "^2.0.0"
   },
   "scripts": {
     "prepublish": "rollup -c rollup.config.js"
-  },
-  "dependencies": {
-    "lodash-es": "^4.16.2"
   }
 }
