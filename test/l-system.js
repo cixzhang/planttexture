@@ -12,7 +12,7 @@ describe('l-system', () => {
     expect(iterable.next().value).to.equal('aaaaaaaa');
   });
 
-  it('iterates a simple herb', () => {
+  it('can generate a simple herb', () => {
     const iterable = LSystem('b', {
       'b': 'ax',
       'x': '[bb]'
@@ -22,5 +22,18 @@ describe('l-system', () => {
     expect(iterable.next().value).to.equal('a[bb]');
     expect(iterable.next().value).to.equal('a[axax]');
     expect(iterable.next().value).to.equal('a[a[bb]a[bb]]');
+  });
+
+  it('can generate a simple stalk', () => {
+    const iterable = LSystem('ix', {
+      'i': 'y',
+      'yx': 'yix'
+    });
+
+    expect(iterable.next().value).to.equal('ix');
+    expect(iterable.next().value).to.equal('yx');
+    expect(iterable.next().value).to.equal('yix');
+    expect(iterable.next().value).to.equal('yyx');
+    expect(iterable.next().value).to.equal('yyix');
   });
 });
