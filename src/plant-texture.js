@@ -1,4 +1,5 @@
 import { createStemSet } from './create-image-data.js';
+import lSystem from './l-system';
 
 class PlantTexture {
   constructor({
@@ -41,4 +42,5 @@ class PlantTexture {
   }
 }
 
+export const LSystem = lSystem;
 export default PlantTexture;

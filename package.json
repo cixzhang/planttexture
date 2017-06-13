@@ -5,11 +5,14 @@
   "main": "plant-texture.js",
   "author": "",
   "devDependencies": {
+    "chai": "^4.0.2",
     "lodash-es": "^4.16.2",
+    "mocha": "^3.4.2",
     "rollup": "^0.34.3",
     "rollup-plugin-node-resolve": "^2.0.0"
   },
   "scripts": {
-    "prepublish": "rollup -c rollup.config.js"
+    "prepublish": "rollup -c rollup.config.js",
+    "test": "npm run prepublish; mocha test"
   }
 }

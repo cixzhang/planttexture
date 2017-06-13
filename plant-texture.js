@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) :
-  (global.PlantTexture = factory());
-}(this, function () { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (factory((global.PlantTexture = global.PlantTexture || {})));
+}(this, function (exports) { 'use strict';
 
   /**
    * Checks if `value` is object-like. A value is object-like if it's not `null`
@@ -17893,6 +17893,47 @@ var   nativeMin$12 = Math.min;
     return canvas;
   }
 
+  function* lSystem(_state, rules, maxIterations) {
+    maxIterations = maxIterations || Infinity;
+    let i = 0;
+    let state = _state;
+    const holder = '@'; // avoid this char in rules
+    const ruleList = chain(rules)
+      .map((replace, key) => ({
+        length: key.length,
+        key,
+        replace
+      }))
+      .sortBy(rule => -rule.length)
+      .value()
+
+    yield state;
+    i += 1;
+
+    while (i < maxIterations) {
+      const replacements = [];
+      let heldState = state;
+      ruleList.forEach((rule) => {
+        // apply rule
+        let found = heldState.search(rule.key);
+        while (found > -1) {
+          heldState = heldState.replace(rule.key, holder);
+          replacements[found] = {index: found, rule};
+          found = heldState.search(rule.key)
+        }
+      });
+
+      const stateList = heldState.split('');
+      replacements.forEach(({ index, rule }) => {
+        stateList[index] = rule.replace;
+      });
+
+      state = stateList.join('');
+      yield state;
+      i += 1;
+    }
+  }
+
   class PlantTexture {
     constructor({
       canvas,
@@ -17934,6 +17975,11 @@ var   nativeMin$12 = Math.min;
     }
   }
 
-  return PlantTexture;
+  const LSystem = lSystem;
+
+  exports.LSystem = LSystem;
+  exports['default'] = PlantTexture;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
 
 }));
