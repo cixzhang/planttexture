@@ -19,6 +19,7 @@ class PixelTurtle {
     this.direction = [1, 0];
     this.color = [0, 0, 0, 1];
     this.markers = {};
+    this.state = {};
     return this;
   }
 
@@ -52,14 +53,26 @@ class PixelTurtle {
 
   save(id) {
     this.markers[id] = [...this.position];
+    return this;
   }
 
   load(id) {
     this.position = this.markers[id];
+    return this;
   }
 
   eyedrop(color) {
     this.color = color;
+    return this;
+  }
+
+  get(key) {
+    return this.state[key];
+  }
+
+  set(key, value) {
+    this.state[key] = value;
+    return value;
   }
 
   perform(actions) {
