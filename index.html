@@ -95,7 +95,7 @@
       var plant = parse(description.innerText);
       if (!plant) return;
 
-      var plantTex = new PlantTexture({name: 'plant'});
+      var plantTex = new PlantTexture.Old({name: 'plant'});
       plantTex.generateStems(plant);
       var pngSource = plantTex.toPNG();
       image.src = pngSource;

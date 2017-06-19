@@ -1,8 +1,6 @@
-import PlantTextureOld from './plant-texture-old';
-import lSystem from './l-system';
-import PixelTurtle from './pixel-turtle';
+import { createStemSet } from './create-image-data.js';
 
-class PlantTexture {
+class PlantTextureOld {
   constructor({
     canvas,
     ImageDataClass = ImageData,
@@ -15,8 +13,15 @@ class PlantTexture {
     this.ImageData = ImageDataClass;
   }
 
-  generateStems() {
-    /* TODO */
+  generateStems({type, stemTypes, stemGrowths}) {
+    createStemSet({
+      type,
+      stemTypes,
+      stemGrowths,
+      canvas: this.canvas,
+      frames: this.frames,
+      name: this.name
+    }, this.ImageData);
   }
 
   toPNG() {
@@ -36,7 +41,4 @@ class PlantTexture {
   }
 }
 
-PlantTexture.Old = PlantTextureOld;
-PlantTexture.lSystem = lSystem;
-PlantTexture.Turtle = PixelTurtle;
-export default PlantTexture;
+export default PlantTextureOld;

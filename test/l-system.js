@@ -1,9 +1,11 @@
 const { expect } = require('chai');
-const { LSystem } = require('../plant-texture');
+const PlantTexture = require('../plant-texture');
 
 describe('l-system', () => {
+  const lSystem = PlantTexture.lSystem;
+
   it('creates an iterable l-system', () => {
-    const iterable = LSystem('a', {
+    const iterable = lSystem('a', {
       'a': 'aa'
     });
     expect(iterable.next().value).to.equal('a');
@@ -13,7 +15,7 @@ describe('l-system', () => {
   });
 
   it('can generate a simple herb', () => {
-    const iterable = LSystem('b', {
+    const iterable = lSystem('b', {
       'b': 'ax',
       'x': '[bb]'
     });
@@ -25,7 +27,7 @@ describe('l-system', () => {
   });
 
   it('can generate a simple stalk', () => {
-    const iterable = LSystem('ix', {
+    const iterable = lSystem('ix', {
       'i': 'y',
       'yx': 'yix'
     });

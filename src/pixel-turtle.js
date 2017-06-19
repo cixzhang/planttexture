@@ -18,8 +18,14 @@ class PixelTurtle {
     this.position = [0, 0];
     this.direction = [1, 0];
     this.color = [0, 0, 0, 1];
-    this.markers = {};
+    this.saved = [];
     this.state = {};
+    return this;
+  }
+
+  moveTo([x, y]) {
+    this.position[0] = x;
+    this.position[1] = y;
     return this;
   }
 
@@ -39,6 +45,7 @@ class PixelTurtle {
       let y = Math.max(this.position[1], 0);
       doDraw(Math.floor(x), Math.floor(y), this.color);
     }
+    this.move(c);
     return this;
   }
 
@@ -51,13 +58,18 @@ class PixelTurtle {
     return this;
   }
 
-  save(id) {
-    this.markers[id] = [...this.position];
+  turnTo([x, y]) {
+    this.direction[0] = x;
+    this.direction[1] = y;
+  }
+
+  save() {
+    this.saved.push([...this.position]);
     return this;
   }
 
-  load(id) {
-    this.position = this.markers[id];
+  load() {
+    this.position = this.saved.pop();
     return this;
   }
 

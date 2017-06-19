@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-  typeof define === 'function' && define.amd ? define(['exports'], factory) :
-  (factory((global.PlantTexture = global.PlantTexture || {})));
-}(this, function (exports) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global.PlantTexture = factory());
+}(this, function () { 'use strict';
 
   /**
    * Checks if `value` is object-like. A value is object-like if it's not `null`
@@ -17893,6 +17893,47 @@ var   nativeMin$12 = Math.min;
     return canvas;
   }
 
+  class PlantTextureOld {
+    constructor({
+      canvas,
+      ImageDataClass = ImageData,
+      name
+    }) {
+      this.name = name;
+      this.canvas = canvas || document.createElement('canvas');
+      this.png = null;
+      this.frames = [];
+      this.ImageData = ImageDataClass;
+    }
+
+    generateStems({type, stemTypes, stemGrowths}) {
+      createStemSet({
+        type,
+        stemTypes,
+        stemGrowths,
+        canvas: this.canvas,
+        frames: this.frames,
+        name: this.name
+      }, this.ImageData);
+    }
+
+    toPNG() {
+      return this.canvas.toDataURL('image/png');
+    }
+
+    toJSON() {
+      const meta = {
+        image: `${this.name}.png`,
+        tile: 16
+      };
+
+      return {
+        frames: this.frames,
+        meta
+      };
+    }
+  }
+
   function* lSystem(_state, rules, maxIterations) {
     maxIterations = maxIterations || Infinity;
     let i = 0;
@@ -17934,6 +17975,108 @@ var   nativeMin$12 = Math.min;
     }
   }
 
+  class PixelTurtle {
+    static createAction(command, ...params) {
+      return { command, params };
+    }
+
+    constructor(width, height) {
+      this.width = width;
+      this.height = height;
+      this.reset();
+      return this;
+    }
+
+    reset() {
+      this.pixels = new Uint8ClampedArray(4 * this.width * this.height);
+      this.position = [0, 0];
+      this.direction = [1, 0];
+      this.color = [0, 0, 0, 1];
+      this.saved = [];
+      this.state = {};
+      return this;
+    }
+
+    moveTo([x, y]) {
+      this.position[0] = x;
+      this.position[1] = y;
+      return this;
+    }
+
+    move(c) {
+      this.position[0] += c * this.direction[0];
+      this.position[1] += c * this.direction[1];
+      return this;
+    }
+
+    draw(c) {
+      var doDraw = (x, y, color) => drawPixel(
+        this.pixels,
+        this.width,
+        x, y, color);
+      for (let i = 0; i < c; i++) {
+        let x = Math.max(this.position[0], 0);
+        let y = Math.max(this.position[1], 0);
+        doDraw(Math.floor(x), Math.floor(y), this.color);
+      }
+      this.move(c);
+      return this;
+    }
+
+    turn(d) {
+      const cosD = Math.cos(d);
+      const sinD = Math.sin(d);
+      const [x, y] = this.direction;
+      this.direction[0] = x * cosD - y * sinD;
+      this.direction[1] = x * sinD + y * cosD;
+      return this;
+    }
+
+    turnTo([x, y]) {
+      this.direction[0] = x;
+      this.direction[1] = y;
+    }
+
+    save() {
+      this.saved.push([...this.position]);
+      return this;
+    }
+
+    load() {
+      this.position = this.saved.pop();
+      return this;
+    }
+
+    eyedrop(color) {
+      this.color = color;
+      return this;
+    }
+
+    get(key) {
+      return this.state[key];
+    }
+
+    set(key, value) {
+      this.state[key] = value;
+      return value;
+    }
+
+    perform(actions) {
+      actions.map((action) => {
+        const params = action.params.map(param => {
+          if (typeof param === 'function') return param(this);
+          return param;
+        })
+        this[action.command](...params);
+      });
+      return this;
+    }
+
+    toJSON() {
+      return pick(this, [ 'width', 'height', 'pixels', 'markers' ]);
+    }
+  }
+
   class PlantTexture {
     constructor({
       canvas,
@@ -17947,15 +18090,8 @@ var   nativeMin$12 = Math.min;
       this.ImageData = ImageDataClass;
     }
 
-    generateStems({type, stemTypes, stemGrowths}) {
-      createStemSet({
-        type,
-        stemTypes,
-        stemGrowths,
-        canvas: this.canvas,
-        frames: this.frames,
-        name: this.name
-      }, this.ImageData);
+    generateStems() {
+      /* TODO */
     }
 
     toPNG() {
@@ -17975,11 +18111,10 @@ var   nativeMin$12 = Math.min;
     }
   }
 
-  const LSystem = lSystem;
+  PlantTexture.Old = PlantTextureOld;
+  PlantTexture.lSystem = lSystem;
+  PlantTexture.Turtle = PixelTurtle;
 
-  exports.LSystem = LSystem;
-  exports['default'] = PlantTexture;
-
-  Object.defineProperty(exports, '__esModule', { value: true });
+  return PlantTexture;
 
 }));
