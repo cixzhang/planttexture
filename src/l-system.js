@@ -41,4 +41,12 @@ function* lSystem(_state, rules, maxIterations) {
   }
 }
 
+lSystem.toList = (iterable, count) => {
+  const list = [];
+  for (let i = 0; i < count; i++) {
+    list.push(iterable.next().value)
+  }
+  return list;
+}
+
 export default lSystem;

@@ -1,6 +1,10 @@
+import { flatten } from 'lodash-es';
 import PlantTextureOld from './plant-texture-old';
 import lSystem from './l-system';
+import herbSystem from './l-system-herb';
 import PixelTurtle from './pixel-turtle';
+
+import { computeTotalSize } from './create-image-data';
 
 class PlantTexture {
   constructor({
@@ -13,10 +17,41 @@ class PlantTexture {
     this.png = null;
     this.frames = [];
     this.ImageData = ImageDataClass;
+    this.context = this.canvas.getContext('2d');
   }
 
-  generateStems() {
-    /* TODO */
+  generateHerbs({ count }) {
+    count = count || 9;
+    const width = 16;
+    const height = 16;
+    const actions = herbSystem.actions();
+    const turtle = new PixelTurtle(width, height);
+    const herbs = lSystem.toList(herbSystem.generate(), count);
+    this.setup('herb', 1, count);
+    herbs.forEach((herb, i) => {
+      turtle.reset();
+      turtle.perform(herbSystem.init());
+      turtle.perform(flatten(herb.split('').map(rule => actions[rule])));
+      this.renderPixels(`herb.0.${i}`, turtle, i * width, 0);
+    });
+  }
+
+  setup(type, rows, columns) {
+    const totalSize = computeTotalSize(type, rows, columns);
+    this.canvas.width = totalSize[0];
+    this.canvas.height = totalSize[1];
+  }
+
+  renderPixels(name, turtle, x, y) {
+    const { width, height } = turtle;
+    const imageData = new this.ImageData(turtle.pixels, width, height);
+    this.context.putImageData(imageData, x, y);
+
+    this.frames.push({
+      name,
+      frame: { x, y, w: width, h: height },
+      meta: { nodules: turtle.get('nodes') }
+    });
   }
 
   toPNG() {

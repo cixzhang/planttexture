@@ -17,7 +17,7 @@ class PixelTurtle {
     this.pixels = new Uint8ClampedArray(4 * this.width * this.height);
     this.position = [0, 0];
     this.direction = [1, 0];
-    this.color = [0, 0, 0, 1];
+    this.color = [0, 0, 0, 255];
     this.saved = [];
     this.state = {};
     return this;
@@ -43,9 +43,9 @@ class PixelTurtle {
     for (let i = 0; i < c; i++) {
       let x = Math.max(this.position[0], 0);
       let y = Math.max(this.position[1], 0);
-      doDraw(Math.floor(x), Math.floor(y), this.color);
+      doDraw(Math.round(x), Math.round(y), this.color);
+      this.move(1);
     }
-    this.move(c);
     return this;
   }
 

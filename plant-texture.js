@@ -17705,7 +17705,7 @@ var   nativeMin$12 = Math.min;
     var parsed = clone(baseColors[type]);
     var colors = [0, 0, 0];
 
-    if (plant.expression.counts) {
+    if (plant && plant.expression && plant.expression.counts) {
       plant.expression.counts.forEach((countObj) => {
         var red = 0;
         var yellow = 0;
@@ -17722,9 +17722,9 @@ var   nativeMin$12 = Math.min;
     }
 
     return [
-      (parsed[0] + colors[0] / 5) * 255,
-      (parsed[1] + colors[1] / 5) * 255,
-      (parsed[2] + colors[2] / 5) * 255,
+      Math.floor((parsed[0] + colors[0] / 5) * 255),
+      Math.floor((parsed[1] + colors[1] / 5) * 255),
+      Math.floor((parsed[2] + colors[2] / 5) * 255),
       255
     ];
   }
@@ -17975,6 +17975,14 @@ var   nativeMin$12 = Math.min;
     }
   }
 
+  lSystem.toList = (iterable, count) => {
+    const list = [];
+    for (let i = 0; i < count; i++) {
+      list.push(iterable.next().value)
+    }
+    return list;
+  }
+
   class PixelTurtle {
     static createAction(command, ...params) {
       return { command, params };
@@ -17991,7 +17999,7 @@ var   nativeMin$12 = Math.min;
       this.pixels = new Uint8ClampedArray(4 * this.width * this.height);
       this.position = [0, 0];
       this.direction = [1, 0];
-      this.color = [0, 0, 0, 1];
+      this.color = [0, 0, 0, 255];
       this.saved = [];
       this.state = {};
       return this;
@@ -18017,9 +18025,9 @@ var   nativeMin$12 = Math.min;
       for (let i = 0; i < c; i++) {
         let x = Math.max(this.position[0], 0);
         let y = Math.max(this.position[1], 0);
-        doDraw(Math.floor(x), Math.floor(y), this.color);
+        doDraw(Math.round(x), Math.round(y), this.color);
+        this.move(1);
       }
-      this.move(c);
       return this;
     }
 
@@ -18077,6 +18085,59 @@ var   nativeMin$12 = Math.min;
     }
   }
 
+  const generate = (count) => lSystem('b', {
+      'b': 'ax',
+      'x': '[b-b]'
+    }, count);
+
+  const init = () => ([
+    PixelTurtle.createAction('eyedrop', getColor('stem')),
+    PixelTurtle.createAction('moveTo',
+      turtle => [Math.floor(turtle.width / 2), turtle.height - 1]),
+    PixelTurtle.createAction('turnTo', [0, -1])
+  ]);
+  const actions = () => ({
+    'a': [
+      PixelTurtle.createAction('draw', 2),
+      PixelTurtle.createAction('set', 'nodes', (turtle) => {
+        const nodes = turtle.get('nodes') || [];
+        nodes.push({
+          position: turtle.position,
+          direction: 'left'
+        });
+        nodes.push({
+          position: turtle.position,
+          direction: 'right'
+        });
+        return nodes;
+      })
+    ],
+    'b': [
+      PixelTurtle.createAction('draw', 1),
+      PixelTurtle.createAction('set', 'nodes', (turtle) => {
+        const nodes = turtle.get('nodes') || [];
+        nodes.push({
+          position: turtle.position,
+          direction: 'left'
+        });
+        nodes.push({
+          position: turtle.position,
+          direction: 'right'
+        });
+        return nodes;
+      })
+    ],
+    '[': [
+      PixelTurtle.createAction('save'),
+      PixelTurtle.createAction('turn', Math.PI/4)
+    ],
+    '-': [ PixelTurtle.createAction('turn', -Math.PI/2) ],
+    ']': [ PixelTurtle.createAction('load') ],
+    'x': []
+  });
+
+  var herbSystem = { generate, init, actions };
+
   class PlantTexture {
     constructor({
       canvas,
@@ -18088,10 +18149,41 @@ var   nativeMin$12 = Math.min;
       this.png = null;
       this.frames = [];
       this.ImageData = ImageDataClass;
+      this.context = this.canvas.getContext('2d');
     }
 
-    generateStems() {
-      /* TODO */
+    generateHerbs({ count }) {
+      count = count || 9;
+      const width = 16;
+      const height = 16;
+      const actions = herbSystem.actions();
+      const turtle = new PixelTurtle(width, height);
+      const herbs = lSystem.toList(herbSystem.generate(), count);
+      this.setup('herb', 1, count);
+      herbs.forEach((herb, i) => {
+        turtle.reset();
+        turtle.perform(herbSystem.init());
+        turtle.perform(flatten(herb.split('').map(rule => actions[rule])));
+        this.renderPixels(`herb.0.${i}`, turtle, i * width, 0);
+      });
+    }
+
+    setup(type, rows, columns) {
+      const totalSize = computeTotalSize(type, rows, columns);
+      this.canvas.width = totalSize[0];
+      this.canvas.height = totalSize[1];
+    }
+
+    renderPixels(name, turtle, x, y) {
+      const { width, height } = turtle;
+      const imageData = new this.ImageData(turtle.pixels, width, height);
+      this.context.putImageData(imageData, x, y);
+
+      this.frames.push({
+        name,
+        frame: { x, y, w: width, h: height },
+        meta: { nodules: turtle.get('nodes') }
+      });
     }
 
     toPNG() {

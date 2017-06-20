@@ -10,7 +10,7 @@ export function getColor(type, plant) {
   var parsed = clone(baseColors[type]);
   var colors = [0, 0, 0];
 
-  if (plant.expression.counts) {
+  if (plant && plant.expression && plant.expression.counts) {
     plant.expression.counts.forEach((countObj) => {
       var red = 0;
       var yellow = 0;
@@ -27,9 +27,9 @@ export function getColor(type, plant) {
   }
 
   return [
-    (parsed[0] + colors[0] / 5) * 255,
-    (parsed[1] + colors[1] / 5) * 255,
-    (parsed[2] + colors[2] / 5) * 255,
+    Math.floor((parsed[0] + colors[0] / 5) * 255),
+    Math.floor((parsed[1] + colors[1] / 5) * 255),
+    Math.floor((parsed[2] + colors[2] / 5) * 255),
     255
   ];
 }
