@@ -18085,20 +18085,21 @@ var   nativeMin$12 = Math.min;
     }
   }
 
-  const generate = (count) => lSystem('b', {
+  const generate = (type, count) => lSystem('b', {
       'b': 'ax',
-      'x': '[b-b]'
+      'x': `[${'b'.repeat(type + 2).split('').join('-')}]`
     }, count);
 
-  const init = () => ([
+  const init = (type) => ([
     PixelTurtle.createAction('eyedrop', getColor('stem')),
     PixelTurtle.createAction('moveTo',
       turtle => [Math.floor(turtle.width / 2), turtle.height - 1]),
-    PixelTurtle.createAction('turnTo', [0, -1])
+    PixelTurtle.createAction('turnTo', [0, -1]),
+    PixelTurtle.createAction('set', 'type', type + 2)
   ]);
   const actions = () => ({
     'a': [
-      PixelTurtle.createAction('draw', 2),
+      PixelTurtle.createAction('draw', (turtle) => turtle.get('type')),
       PixelTurtle.createAction('set', 'nodes', (turtle) => {
         const nodes = turtle.get('nodes') || [];
         nodes.push({
@@ -18113,7 +18114,7 @@ var   nativeMin$12 = Math.min;
       })
     ],
     'b': [
-      PixelTurtle.createAction('draw', 1),
+      PixelTurtle.createAction('draw', (turtle) => turtle.get('type') / 2),
       PixelTurtle.createAction('set', 'nodes', (turtle) => {
         const nodes = turtle.get('nodes') || [];
         nodes.push({
@@ -18128,11 +18129,26 @@ var   nativeMin$12 = Math.min;
       })
     ],
     '[': [
+      PixelTurtle.createAction('set', 'adjust', (turtle) => {
+        const adjust = turtle.get('adjust') || turtle.get('type');
+        return adjust / turtle.get('type');
+      }),
       PixelTurtle.createAction('save'),
-      PixelTurtle.createAction('turn', Math.PI/4)
+      PixelTurtle.createAction('turnTo', (turtle) => [-1 * turtle.get('adjust'), -1])
     ],
-    '-': [ PixelTurtle.createAction('turn', -Math.PI/2) ],
-    ']': [ PixelTurtle.createAction('load') ],
+    '-': [
+      PixelTurtle.createAction('load'),
+      PixelTurtle.createAction('save'),
+      PixelTurtle.createAction('turnTo', (turtle) => [1 * turtle.get('adjust'), -1])
+    ],
+    ']': [
+      PixelTurtle.createAction('set', 'adjust', (turtle) => {
+        const adjust = turtle.get('adjust') || turtle.get('type');
+        return adjust * turtle.get('type');
+      }),
+      PixelTurtle.createAction('load'),
+      PixelTurtle.createAction('turnTo', [0, -1])
+    ],
     'x': []
   });
 
@@ -18152,20 +18168,22 @@ var   nativeMin$12 = Math.min;
       this.context = this.canvas.getContext('2d');
     }
 
-    generateHerbs({ count }) {
+    generateHerbs({ count, types }) {
       count = count || 9;
       const width = 16;
       const height = 16;
       const actions = herbSystem.actions();
       const turtle = new PixelTurtle(width, height);
-      const herbs = lSystem.toList(herbSystem.generate(), count);
-      this.setup('herb', 1, count);
-      herbs.forEach((herb, i) => {
-        turtle.reset();
-        turtle.perform(herbSystem.init());
-        turtle.perform(flatten(herb.split('').map(rule => actions[rule])));
-        this.renderPixels(`herb.0.${i}`, turtle, i * width, 0);
-      });
+      this.setup('herb', types, count);
+      for (let t = 0; t < types; t++) {
+        const herbs = lSystem.toList(herbSystem.generate(t), count);
+        herbs.forEach((herb, i) => {
+          turtle.reset();
+          turtle.perform(herbSystem.init(t));
+          turtle.perform(flatten(herb.split('').map(rule => actions[rule])));
+          this.renderPixels(`herb.0.${i}`, turtle, i * width, t * height);
+        });
+      }
     }
 
     setup(type, rows, columns) {

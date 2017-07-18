@@ -20,20 +20,22 @@ class PlantTexture {
     this.context = this.canvas.getContext('2d');
   }
 
-  generateHerbs({ count }) {
+  generateHerbs({ count, types }) {
     count = count || 9;
     const width = 16;
     const height = 16;
     const actions = herbSystem.actions();
     const turtle = new PixelTurtle(width, height);
-    const herbs = lSystem.toList(herbSystem.generate(), count);
-    this.setup('herb', 1, count);
-    herbs.forEach((herb, i) => {
-      turtle.reset();
-      turtle.perform(herbSystem.init());
-      turtle.perform(flatten(herb.split('').map(rule => actions[rule])));
-      this.renderPixels(`herb.0.${i}`, turtle, i * width, 0);
-    });
+    this.setup('herb', types, count);
+    for (let t = 0; t < types; t++) {
+      const herbs = lSystem.toList(herbSystem.generate(t), count);
+      herbs.forEach((herb, i) => {
+        turtle.reset();
+        turtle.perform(herbSystem.init(t));
+        turtle.perform(flatten(herb.split('').map(rule => actions[rule])));
+        this.renderPixels(`herb.0.${i}`, turtle, i * width, t * height);
+      });
+    }
   }
 
   setup(type, rows, columns) {
