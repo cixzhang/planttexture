@@ -17820,9 +17820,14 @@ var   nativeMin$12 = Math.min;
     });
   }
 
-  function computeTotalSize(plantType, rows, columns) {
+  function getPlantDimensions(plantType) {
     var width = plantType === 'tree' ? 32 : 16;
     var height = plantType === 'stalk' || plantType === 'tree' ? 32 : 16;
+    return [width, height];
+  }
+
+  function computeTotalSize(plantType, rows, columns) {
+    var [width, height] = getPlantDimensions(plantType);
     return [width * columns, height * rows];
   }
 
@@ -18043,6 +18048,7 @@ var   nativeMin$12 = Math.min;
     turnTo([x, y]) {
       this.direction[0] = x;
       this.direction[1] = y;
+      return this;
     }
 
     save() {
@@ -18100,6 +18106,7 @@ var   nativeMin$12 = Math.min;
   const actions = () => ({
     'a': [
       PixelTurtle.createAction('draw', (turtle) => turtle.get('type')),
+      PixelTurtle.createAction('eyedrop', (t) => lighten(t.color, 1)),
       PixelTurtle.createAction('set', 'nodes', (turtle) => {
         const nodes = turtle.get('nodes') || [];
         nodes.push({
@@ -18115,6 +18122,7 @@ var   nativeMin$12 = Math.min;
     ],
     'b': [
       PixelTurtle.createAction('draw', (turtle) => turtle.get('type') / 2),
+      PixelTurtle.createAction('eyedrop', (t) => lighten(t.color, 1)),
       PixelTurtle.createAction('set', 'nodes', (turtle) => {
         const nodes = turtle.get('nodes') || [];
         nodes.push({
@@ -18154,6 +18162,54 @@ var   nativeMin$12 = Math.min;
 
   var herbSystem = { generate, init, actions };
 
+  const generate$1 = (type, count) => lSystem('a', {
+      'a': 'b[c]c',
+      'c': 'ba',
+    }, count);
+
+  const init$1 = () => ([
+    PixelTurtle.createAction('eyedrop', getColor('stem')),
+    PixelTurtle.createAction('moveTo',
+      turtle => [Math.floor(turtle.width / 2), turtle.height - 1]),
+    PixelTurtle.createAction('turnTo', [0, -1]),
+    PixelTurtle.createAction('turn', -Math.PI/4),
+  ]);
+
+  const actions$1 = () => ({
+    'a': [
+      PixelTurtle.createAction('turn', -Math.PI/12),
+      PixelTurtle.createAction('draw', 3),
+      PixelTurtle.createAction('eyedrop', (t) => lighten(t.color, 1)),
+    ],
+    'b': [
+      PixelTurtle.createAction('turn', -Math.PI/12),
+      PixelTurtle.createAction('draw', 2),
+      PixelTurtle.createAction('eyedrop', (t) => lighten(t.color, 1)),
+    ],
+    '[': [
+      PixelTurtle.createAction('save'),
+      PixelTurtle.createAction('set', 'angleX', (t) => t.direction[0]),
+      PixelTurtle.createAction('set', 'angleY', (t) => t.direction[1]),
+      PixelTurtle.createAction('turn', Math.PI/3),
+    ],
+    'c': [
+      PixelTurtle.createAction('draw', 2),
+      PixelTurtle.createAction('eyedrop', (t) => lighten(t.color, 1)),
+    ],
+    ']': [
+      PixelTurtle.createAction('load'),
+      PixelTurtle.createAction('turnTo', (t) => {
+        return [t.get('angleX'), t.get('angleY')];
+      }),
+    ],
+    'd': [
+      PixelTurtle.createAction('draw', 2),
+      PixelTurtle.createAction('eyedrop', (t) => lighten(t.color, 1)),
+    ],
+  });
+
+  var shrubSystem = { generate: generate$1, init: init$1, actions: actions$1 };
+
   class PlantTexture {
     constructor({
       canvas,
@@ -18168,20 +18224,28 @@ var   nativeMin$12 = Math.min;
       this.context = this.canvas.getContext('2d');
     }
 
-    generateHerbs({ count, types }) {
+    generate({ type, count, kinds }) {
       count = count || 9;
-      const width = 16;
-      const height = 16;
-      const actions = herbSystem.actions();
+      const lsysmap = {
+        herb: herbSystem,
+        shrub: shrubSystem,
+      };
+
+      const lsys = lsysmap[type];
+      if (!lsys) return;
+
+      const [width, height] = getPlantDimensions(type);
       const turtle = new PixelTurtle(width, height);
-      this.setup('herb', types, count);
-      for (let t = 0; t < types; t++) {
-        const herbs = lSystem.toList(herbSystem.generate(t), count);
-        herbs.forEach((herb, i) => {
+      const actions = lsys.actions();
+      this.setup(type, kinds, count);
+
+      for (let t = 0; t < kinds; t++) {
+        const plants = lSystem.toList(lsys.generate(t), count);
+        plants.forEach((plant, i) => {
           turtle.reset();
-          turtle.perform(herbSystem.init(t));
-          turtle.perform(flatten(herb.split('').map(rule => actions[rule])));
-          this.renderPixels(`herb.0.${i}`, turtle, i * width, t * height);
+          turtle.perform(lsys.init(t));
+          turtle.perform(flatten(plant.split('').map(rule => actions[rule])));
+          this.renderPixels(`${type}.${t}.${i}`, turtle, i * width, t * height);
         });
       }
     }

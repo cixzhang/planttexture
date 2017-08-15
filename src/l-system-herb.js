@@ -1,6 +1,6 @@
 import lSystem from './l-system';
 import PixelTurtle from './pixel-turtle';
-import { getColor } from './colors';
+import { getColor, lighten } from './colors';
 
 const generate = (type, count) => lSystem('b', {
     'b': 'ax',
@@ -17,6 +17,7 @@ const init = (type) => ([
 const actions = () => ({
   'a': [
     PixelTurtle.createAction('draw', (turtle) => turtle.get('type')),
+    PixelTurtle.createAction('eyedrop', (t) => lighten(t.color, 1)),
     PixelTurtle.createAction('set', 'nodes', (turtle) => {
       const nodes = turtle.get('nodes') || [];
       nodes.push({
@@ -32,6 +33,7 @@ const actions = () => ({
   ],
   'b': [
     PixelTurtle.createAction('draw', (turtle) => turtle.get('type') / 2),
+    PixelTurtle.createAction('eyedrop', (t) => lighten(t.color, 1)),
     PixelTurtle.createAction('set', 'nodes', (turtle) => {
       const nodes = turtle.get('nodes') || [];
       nodes.push({

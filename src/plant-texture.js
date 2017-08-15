@@ -2,9 +2,10 @@ import { flatten } from 'lodash-es';
 import PlantTextureOld from './plant-texture-old';
 import lSystem from './l-system';
 import herbSystem from './l-system-herb';
+import shrubSystem from './l-system-shrub';
 import PixelTurtle from './pixel-turtle';
 
-import { computeTotalSize } from './create-image-data';
+import { getPlantDimensions, computeTotalSize } from './create-image-data';
 
 class PlantTexture {
   constructor({
@@ -20,20 +21,28 @@ class PlantTexture {
     this.context = this.canvas.getContext('2d');
   }
 
-  generateHerbs({ count, types }) {
+  generate({ type, count, kinds }) {
     count = count || 9;
-    const width = 16;
-    const height = 16;
-    const actions = herbSystem.actions();
+    const lsysmap = {
+      herb: herbSystem,
+      shrub: shrubSystem,
+    };
+
+    const lsys = lsysmap[type];
+    if (!lsys) return;
+
+    const [width, height] = getPlantDimensions(type);
     const turtle = new PixelTurtle(width, height);
-    this.setup('herb', types, count);
-    for (let t = 0; t < types; t++) {
-      const herbs = lSystem.toList(herbSystem.generate(t), count);
-      herbs.forEach((herb, i) => {
+    const actions = lsys.actions();
+    this.setup(type, kinds, count);
+
+    for (let t = 0; t < kinds; t++) {
+      const plants = lSystem.toList(lsys.generate(t), count);
+      plants.forEach((plant, i) => {
         turtle.reset();
-        turtle.perform(herbSystem.init(t));
-        turtle.perform(flatten(herb.split('').map(rule => actions[rule])));
-        this.renderPixels(`herb.0.${i}`, turtle, i * width, t * height);
+        turtle.perform(lsys.init(t));
+        turtle.perform(flatten(plant.split('').map(rule => actions[rule])));
+        this.renderPixels(`${type}.${t}.${i}`, turtle, i * width, t * height);
       });
     }
   }

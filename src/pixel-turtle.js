@@ -61,6 +61,7 @@ class PixelTurtle {
   turnTo([x, y]) {
     this.direction[0] = x;
     this.direction[1] = y;
+    return this;
   }
 
   save() {

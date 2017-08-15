@@ -3,9 +3,14 @@ import { compact, last } from 'lodash-es';
 import generateStemPixels from './generate-stem';
 import generateLeafPixels from './generate-leaf';
 
-export function computeTotalSize(plantType, rows, columns) {
+export function getPlantDimensions(plantType) {
   var width = plantType === 'tree' ? 32 : 16;
   var height = plantType === 'stalk' || plantType === 'tree' ? 32 : 16;
+  return [width, height];
+}
+
+export function computeTotalSize(plantType, rows, columns) {
+  var [width, height] = getPlantDimensions(plantType);
   return [width * columns, height * rows];
 }
 

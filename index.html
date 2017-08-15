@@ -69,8 +69,9 @@
     <div class="io">
       <div class="input"><pre>
 <code id="plant-description" class="json" contenteditable>{
+  "type": "shrub",
   "count": 9,
-  "types": 1
+  "kinds": 1
 }</code>
       </pre></div>
       <div class="output"><pre>
@@ -95,7 +96,7 @@
       if (!plant) return;
 
       var plantTex = new PlantTexture({name: 'plant'});
-      plantTex.generateHerbs(plant);
+      plantTex.generate(plant);
       var pngSource = plantTex.toPNG();
       image.src = pngSource;
       image.onload = function () {
