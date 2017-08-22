@@ -1,0 +1,58 @@
+<!doctype html>
+<title>Pixel L-System Generator</title>
+<meta charset="utf-8">
+<style>
+  img { image-rendering: pixelated; }
+  code { white-space: pre; }
+</style>
+
+<code id="system-description" class="json" contenteditable>{
+  "start": "d",
+  "rules": {
+    "d": "dx",
+    "x": "d"
+  },
+  "count": 9
+}</code>
+
+<div>
+  <img id="image" />
+  <img id="image-mini"/>
+</div>
+
+<script type="text/javascript" src="l-system-generator.js"></script>
+<script>
+  var image = document.getElementById('image');
+  var mini = document.getElementById('image-mini');
+  var description = document.getElementById('system-description');
+  var lSysGen = new LSysGen({});
+
+  description.addEventListener('input', render);
+
+  render();
+
+  function render() {
+    var lsys = parse(description.innerText);
+    if (!lsys) return;
+
+    lSysGen.generate(lsys.start, lsys.rules, lsys.count);
+    var pngSource = lSysGen.toPNG();
+    image.src = pngSource;
+    image.onload = function () {
+      image.width = image.naturalWidth * 5;
+      image.height = image.naturalHeight * 5;
+    };
+
+    mini.src = pngSource;
+  }
+
+  function parse(value) {
+    var obj;
+    try {
+      obj = JSON.parse(value);
+    } catch (e) {
+      console.log(e);
+    }
+    return obj;
+  }
+</script>
