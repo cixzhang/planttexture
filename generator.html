@@ -6,13 +6,16 @@
   code { white-space: pre; }
 </style>
 
-<code id="system-description" class="json" contenteditable>{
-  "start": "d",
-  "rules": {
-    "d": "dx",
-    "x": "d"
+<code id="system-description" class="js" contenteditable>{
+  start: 'd',
+  rules: {
+    d: 'tdx',
+    x: 'd'
   },
-  "count": 9
+  count: 9,
+  actions: {
+    t: ['set', 'test', (t) => t.color]
+  }
 }</code>
 
 <div>
@@ -20,19 +23,22 @@
   <img id="image-mini"/>
 </div>
 
+<script type="text/javascript" src="http://cixzhang.github.io/Jot/jot.js"></script>
 <script type="text/javascript" src="l-system-generator.js"></script>
-<script>
+
+<script type="text/javascript">
   var image = document.getElementById('image');
   var mini = document.getElementById('image-mini');
   var description = document.getElementById('system-description');
+  var actions_desc = document.getElementById('actions-description');
   var lSysGen = new LSysGen({});
-
-  description.addEventListener('input', render);
-
-  render();
+  var task = new Jot.Task();
 
   function render() {
-    var lsys = parse(description.innerText);
+    var func = `(${description.innerText})`;
+    task.run(func);
+    var lsys = task.o()
+
     if (!lsys) return;
 
     lSysGen.generate(lsys.start, lsys.rules, lsys.count);
@@ -46,13 +52,6 @@
     mini.src = pngSource;
   }
 
-  function parse(value) {
-    var obj;
-    try {
-      obj = JSON.parse(value);
-    } catch (e) {
-      console.log(e);
-    }
-    return obj;
-  }
+  description.addEventListener('input', render);
+  render();
 </script>
