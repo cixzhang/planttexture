@@ -1,57 +1,73 @@
 <!doctype html>
 <title>Pixel L-System Generator</title>
 <meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.1/themes/prism.css" />
 <style>
   img { image-rendering: pixelated; }
-  code { white-space: pre; }
+  code { outline: none; }
+  pre { cursor: text; }
 </style>
-
-<code id="system-description" class="js" contenteditable>{
-  start: 'd',
-  rules: {
-    d: 'tdx',
-    x: 'd'
-  },
-  count: 9,
-  actions: {
-    t: ['set', 'test', (t) => t.color]
-  }
-}</code>
 
 <div>
   <img id="image" />
   <img id="image-mini"/>
 </div>
 
+<pre>
+  <code id="system-description" class="language-javascript" contenteditable>{
+    start: 'd',
+    rules: {
+      d: 'tdx',
+      x: 'd'
+    },
+    count: 9,
+    actions: {
+      t: ['set', 'test', (t) => t.color]
+    }
+  }</code>
+</pre>
+<div id="error"></div>
+
 <script type="text/javascript" src="http://cixzhang.github.io/Jot/jot.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.1/prism.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.1/components/prism-javascript.js"></script>
 <script type="text/javascript" src="l-system-generator.js"></script>
 
 <script type="text/javascript">
-  var image = document.getElementById('image');
-  var mini = document.getElementById('image-mini');
-  var description = document.getElementById('system-description');
-  var actions_desc = document.getElementById('actions-description');
-  var lSysGen = new LSysGen({});
-  var task = new Jot.Task();
+  window.onload = () => {
+    var image = document.getElementById('image');
+    var mini = document.getElementById('image-mini');
+    var description = document.getElementById('system-description');
+    var actions_desc = document.getElementById('actions-description');
+    var error = document.getElementById('error');
+    var lSysGen = new LSysGen({});
+    var task = new Jot.Task();
 
-  function render() {
-    var func = `(${description.innerText})`;
-    task.run(func);
-    var lsys = task.o()
+    function render() {
+      try {
+        var func = `(${description.innerText})`;
+        task.run(func);
+        var lsys = task.o()
 
-    if (!lsys) return;
+        if (!lsys) return;
 
-    lSysGen.generate(lsys.start, lsys.rules, lsys.count);
-    var pngSource = lSysGen.toPNG();
-    image.src = pngSource;
-    image.onload = function () {
-      image.width = image.naturalWidth * 5;
-      image.height = image.naturalHeight * 5;
-    };
+        lSysGen.generate(lsys.start, lsys.rules, lsys.count);
+        var pngSource = lSysGen.toPNG();
+        image.src = pngSource;
+        image.onload = function () {
+          image.width = image.naturalWidth * 5;
+          image.height = image.naturalHeight * 5;
+        };
 
-    mini.src = pngSource;
+        mini.src = pngSource;
+        error.innerText = ''
+      } catch(e) {
+        error.innerText = 'Invalid JS'
+      }
+    }
+
+    description.addEventListener('input', render);
+    description.addEventListener('blur', () => Prism.highlightAll())
+    render();
   }
-
-  description.addEventListener('input', render);
-  render();
 </script>
