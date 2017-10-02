@@ -12,7 +12,7 @@
     "rollup-plugin-node-resolve": "^2.0.0"
   },
   "scripts": {
-    "prepublish": "rollup -c rollup.config.js; rollup -c rollup.generator.config.js",
-    "test": "npm run prepublish; mocha test"
+    "prepare": "rollup -c rollup.config.js",
+    "test": "npm run prepare; mocha test"
   }
 }

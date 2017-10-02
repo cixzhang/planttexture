@@ -3,7 +3,7 @@ import { pick } from 'lodash-es';
 
 class PixelTurtle {
   static createAction(command, ...params) {
-    return { command, params };
+    return [ command, ...params ];
   }
 
   constructor(width, height) {
@@ -89,12 +89,14 @@ class PixelTurtle {
   }
 
   perform(actions) {
-    actions.map((action) => {
-      const params = action.params.map(param => {
+    actions.map((_action) => {
+      const action = [..._action];
+      const command = action.shift();
+      const params = action.map(param => {
         if (typeof param === 'function') return param(this);
         return param;
       })
-      this[action.command](...params);
+      this[command](...params);
     });
     return this;
   }

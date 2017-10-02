@@ -17988,9 +17988,81 @@ var   nativeMin$12 = Math.min;
     return list;
   }
 
+  const herb = {
+    width: 16,
+    height: 16,
+    init: (kind) => ([
+      ['eyedrop', getColor('stem')],
+      ['moveTo', turtle => [Math.floor(turtle.width / 2), turtle.height - 1]],
+      ['turnTo', [0, -1]],
+      ['set', 'type', kind + 2],
+    ]),
+    start: 'b',
+    rules: (kind) => ({
+      'b': 'ax',
+      'x': `[${'b'.repeat(kind + 2).split('').join('-')}]`
+    }),
+    actions: {
+      'a': [
+        ['draw', (turtle) => turtle.get('type')],
+        ['eyedrop', (t) => lighten(t.color, 1)],
+        ['set', 'nodes', (turtle) => {
+            const nodes = turtle.get('nodes') || [];
+            nodes.push({
+              position: turtle.position,
+              direction: 'left'
+            });
+            nodes.push({
+              position: turtle.position,
+              direction: 'right'
+            });
+            return nodes;
+          }],
+      ],
+      'b': [
+        ['draw', (turtle) => turtle.get('type') / 2],
+        ['eyedrop', (t) => lighten(t.color, 1)],
+        ['set', 'nodes', (turtle) => {
+          const nodes = turtle.get('nodes') || [];
+          nodes.push({
+            position: turtle.position,
+            direction: 'left'
+          });
+          nodes.push({
+            position: turtle.position,
+            direction: 'right'
+          });
+          return nodes;
+        }],
+      ],
+      '[': [
+        ['set', 'adjust', (turtle) => {
+            const adjust = turtle.get('adjust') || turtle.get('type');
+            return adjust / turtle.get('type');
+          }],
+        ['save'],
+        ['turnTo', (turtle) => [-1 * turtle.get('adjust'), -1]],
+      ],
+      '-': [
+        ['load'],
+        ['save'],
+        ['turnTo', (turtle) => [1 * turtle.get('adjust'), -1]],
+      ],
+      ']': [
+        ['set', 'adjust', (turtle) => {
+            const adjust = turtle.get('adjust') || turtle.get('type');
+            return adjust * turtle.get('type');
+          }],
+        ['load'],
+        ['turnTo', [0, -1]],
+      ],
+      'x': [],
+    }
+  }
+
   class PixelTurtle {
     static createAction(command, ...params) {
-      return { command, params };
+      return [ command, ...params ];
     }
 
     constructor(width, height) {
@@ -18076,12 +18148,14 @@ var   nativeMin$12 = Math.min;
     }
 
     perform(actions) {
-      actions.map((action) => {
-        const params = action.params.map(param => {
+      actions.map((_action) => {
+        const action = [..._action];
+        const command = action.shift();
+        const params = action.map(param => {
           if (typeof param === 'function') return param(this);
           return param;
         })
-        this[action.command](...params);
+        this[command](...params);
       });
       return this;
     }
@@ -18091,124 +18165,56 @@ var   nativeMin$12 = Math.min;
     }
   }
 
-  const generate = (type, count) => lSystem('b', {
-      'b': 'ax',
-      'x': `[${'b'.repeat(type + 2).split('').join('-')}]`
-    }, count);
+  const _ = PixelTurtle.createAction;
 
-  const init = (type) => ([
-    PixelTurtle.createAction('eyedrop', getColor('stem')),
-    PixelTurtle.createAction('moveTo',
-      turtle => [Math.floor(turtle.width / 2), turtle.height - 1]),
-    PixelTurtle.createAction('turnTo', [0, -1]),
-    PixelTurtle.createAction('set', 'type', type + 2)
-  ]);
-  const actions = () => ({
-    'a': [
-      PixelTurtle.createAction('draw', (turtle) => turtle.get('type')),
-      PixelTurtle.createAction('eyedrop', (t) => lighten(t.color, 1)),
-      PixelTurtle.createAction('set', 'nodes', (turtle) => {
-        const nodes = turtle.get('nodes') || [];
-        nodes.push({
-          position: turtle.position,
-          direction: 'left'
-        });
-        nodes.push({
-          position: turtle.position,
-          direction: 'right'
-        });
-        return nodes;
-      })
+  const shrub = {
+    width: 16,
+    height: 16,
+    init: [
+      _('eyedrop', getColor('stem')),
+      _('moveTo',
+        turtle => [Math.floor(turtle.width / 2), turtle.height - 1]),
+      _('turnTo', [0, -1]),
+      _('turn', -Math.PI/4),
     ],
-    'b': [
-      PixelTurtle.createAction('draw', (turtle) => turtle.get('type') / 2),
-      PixelTurtle.createAction('eyedrop', (t) => lighten(t.color, 1)),
-      PixelTurtle.createAction('set', 'nodes', (turtle) => {
-        const nodes = turtle.get('nodes') || [];
-        nodes.push({
-          position: turtle.position,
-          direction: 'left'
-        });
-        nodes.push({
-          position: turtle.position,
-          direction: 'right'
-        });
-        return nodes;
-      })
-    ],
-    '[': [
-      PixelTurtle.createAction('set', 'adjust', (turtle) => {
-        const adjust = turtle.get('adjust') || turtle.get('type');
-        return adjust / turtle.get('type');
-      }),
-      PixelTurtle.createAction('save'),
-      PixelTurtle.createAction('turnTo', (turtle) => [-1 * turtle.get('adjust'), -1])
-    ],
-    '-': [
-      PixelTurtle.createAction('load'),
-      PixelTurtle.createAction('save'),
-      PixelTurtle.createAction('turnTo', (turtle) => [1 * turtle.get('adjust'), -1])
-    ],
-    ']': [
-      PixelTurtle.createAction('set', 'adjust', (turtle) => {
-        const adjust = turtle.get('adjust') || turtle.get('type');
-        return adjust * turtle.get('type');
-      }),
-      PixelTurtle.createAction('load'),
-      PixelTurtle.createAction('turnTo', [0, -1])
-    ],
-    'x': []
-  });
-
-  var herbSystem = { generate, init, actions };
-
-  const generate$1 = (type, count) => lSystem('a', {
+    start: 'a',
+    rules: {
       'a': 'b[c]c',
       'c': 'ba',
-    }, count);
-
-  const init$1 = () => ([
-    PixelTurtle.createAction('eyedrop', getColor('stem')),
-    PixelTurtle.createAction('moveTo',
-      turtle => [Math.floor(turtle.width / 2), turtle.height - 1]),
-    PixelTurtle.createAction('turnTo', [0, -1]),
-    PixelTurtle.createAction('turn', -Math.PI/4),
-  ]);
-
-  const actions$1 = () => ({
-    'a': [
-      PixelTurtle.createAction('turn', -Math.PI/12),
-      PixelTurtle.createAction('draw', 3),
-      PixelTurtle.createAction('eyedrop', (t) => lighten(t.color, 1)),
-    ],
-    'b': [
-      PixelTurtle.createAction('turn', -Math.PI/12),
-      PixelTurtle.createAction('draw', 2),
-      PixelTurtle.createAction('eyedrop', (t) => lighten(t.color, 1)),
-    ],
-    '[': [
-      PixelTurtle.createAction('save'),
-      PixelTurtle.createAction('set', 'angleX', (t) => t.direction[0]),
-      PixelTurtle.createAction('set', 'angleY', (t) => t.direction[1]),
-      PixelTurtle.createAction('turn', Math.PI/3),
-    ],
-    'c': [
-      PixelTurtle.createAction('draw', 2),
-      PixelTurtle.createAction('eyedrop', (t) => lighten(t.color, 1)),
-    ],
-    ']': [
-      PixelTurtle.createAction('load'),
-      PixelTurtle.createAction('turnTo', (t) => {
-        return [t.get('angleX'), t.get('angleY')];
-      }),
-    ],
-    'd': [
-      PixelTurtle.createAction('draw', 2),
-      PixelTurtle.createAction('eyedrop', (t) => lighten(t.color, 1)),
-    ],
-  });
-
-  var shrubSystem = { generate: generate$1, init: init$1, actions: actions$1 };
+    },
+    actions: {
+      'a': [
+        _('turn', -Math.PI/12),
+        _('draw', 3),
+        _('eyedrop', (t) => lighten(t.color, 1)),
+      ],
+      'b': [
+        _('turn', -Math.PI/12),
+        _('draw', 2),
+        _('eyedrop', (t) => lighten(t.color, 1)),
+      ],
+      '[': [
+        _('save'),
+        _('set', 'angleX', (t) => t.direction[0]),
+        _('set', 'angleY', (t) => t.direction[1]),
+        _('turn', Math.PI/3),
+      ],
+      'c': [
+        _('draw', 2),
+        _('eyedrop', (t) => lighten(t.color, 1)),
+      ],
+      ']': [
+        _('load'),
+        _('turnTo', (t) => {
+          return [t.get('angleX'), t.get('angleY')];
+        }),
+      ],
+      'd': [
+        _('draw', 2),
+        _('eyedrop', (t) => lighten(t.color, 1)),
+      ],
+    }
+  };
 
   class PlantTexture {
     constructor({
@@ -18224,34 +18230,51 @@ var   nativeMin$12 = Math.min;
       this.context = this.canvas.getContext('2d');
     }
 
-    generate({ type, count, kinds }) {
+    getValue(fnOrVal, plant) {
+      if (typeof fnOrVal === 'function') return fnOrVal(plant);
+      return fnOrVal;
+    }
+
+    generatePlant({ type, count, kinds }) {
       count = count || 9;
-      const lsysmap = {
-        herb: herbSystem,
-        shrub: shrubSystem,
+      const defmap = {
+        herb: herb,
+        shrub: shrub,
       };
 
-      const lsys = lsysmap[type];
-      if (!lsys) return;
+      const definition = defmap[type];
+      if (!definition) return;
 
-      const [width, height] = getPlantDimensions(type);
+      this.generate(definition, { type, count, kinds });
+    }
+
+    generate(definition, plant) {
+      const { type, count, kinds } = plant;
+      const { width, height } = definition;
       const turtle = new PixelTurtle(width, height);
-      const actions = lsys.actions();
-      this.setup(type, kinds, count);
+      this.setup(kinds, count, width, height);
 
       for (let t = 0; t < kinds; t++) {
-        const plants = lSystem.toList(lsys.generate(t), count);
-        plants.forEach((plant, i) => {
-          turtle.reset();
-          turtle.perform(lsys.init(t));
-          turtle.perform(flatten(plant.split('').map(rule => actions[rule])));
-          this.renderPixels(`${type}.${t}.${i}`, turtle, i * width, t * height);
-        });
+        const getValueWithKind = v => this.getValue(v, t);
+        const {
+          init = [],
+          start = '',
+          rules = {},
+          actions = {} } = mapValues(definition, getValueWithKind);
+        const lsys = lSystem(start, rules, count);
+        lSystem
+          .toList(lsys, count)
+          .forEach((plant, i) => {
+            turtle.reset();
+            turtle.perform(init);
+            turtle.perform(flatten(plant.split('').map(rule => actions[rule] || [])));
+            this.renderPixels(`${type}.${t}.${i}`, turtle, i * width, t * height);
+          });
       }
     }
 
-    setup(type, rows, columns) {
-      const totalSize = computeTotalSize(type, rows, columns);
+    setup(rows, columns, width, height) {
+      const totalSize = [width * columns, height * rows];
       this.canvas.width = totalSize[0];
       this.canvas.height = totalSize[1];
     }

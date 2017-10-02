@@ -96,7 +96,7 @@
       if (!plant) return;
 
       var plantTex = new PlantTexture({name: 'plant'});
-      plantTex.generate(plant);
+      plantTex.generatePlant(plant);
       var pngSource = plantTex.toPNG();
       image.src = pngSource;
       image.onload = function () {

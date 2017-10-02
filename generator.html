@@ -15,14 +15,27 @@
 
 <pre>
   <code id="system-description" class="language-javascript" contenteditable>{
-    start: 'd',
+    width: 16,
+    height: 16,
+    init: [
+      ['eyedrop', [0, 0, 0, 255]],
+      ['moveTo', t => [Math.floor(t.width / 2), t.height - 1]],
+      ['turnTo', [0, -1]],
+    ],
+    start: 'x',
     rules: {
-      d: 'tdx',
-      x: 'd'
+      x: 'd',
+      d: 't',
+      t: 'tx',
     },
-    count: 9,
     actions: {
-      t: ['set', 'test', (t) => t.color]
+      'd': [['draw', 1]],
+      'm': [['move', 1]],
+      '>': [['turn', Math.PI / 6]],
+      '<': [['turn', -Math.PI / 6]],
+      '[': [['save']],
+      ']': [['load']],
+      't': [['draw', 2]],
     }
   }</code>
 </pre>
@@ -31,7 +44,7 @@
 <script type="text/javascript" src="https://cixzhang.github.io/Jot/jot.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.1/prism.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.1/components/prism-javascript.js"></script>
-<script type="text/javascript" src="l-system-generator.js"></script>
+<script type="text/javascript" src="plant-texture.js"></script>
 
 <script type="text/javascript">
   window.onload = () => {
@@ -40,7 +53,7 @@
     var description = document.getElementById('system-description');
     var actions_desc = document.getElementById('actions-description');
     var error = document.getElementById('error');
-    var lSysGen = new LSysGen({});
+    var plantTex = new PlantTexture({ name: 'gen' });
     var task = new Jot.Task();
 
     function render() {
@@ -51,8 +64,8 @@
 
         if (!lsys) return;
 
-        lSysGen.generate(lsys.start, lsys.rules, lsys.count);
-        var pngSource = lSysGen.toPNG();
+        plantTex.generate(lsys, { type: 'gen', count: 9, kinds: 1 });
+        var pngSource = plantTex.toPNG();
         image.src = pngSource;
         image.onload = function () {
           image.width = image.naturalWidth * 5;
@@ -62,7 +75,8 @@
         mini.src = pngSource;
         error.innerText = ''
       } catch(e) {
-        error.innerText = 'Invalid JS'
+        console.log(e);
+        error.innerText = `Invalid: ${e.message}`
       }
     }
 

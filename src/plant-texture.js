@@ -1,11 +1,9 @@
-import { flatten } from 'lodash-es';
+import { flatten, mapValues } from 'lodash-es';
 import PlantTextureOld from './plant-texture-old';
 import lSystem from './l-system';
 import herbSystem from './l-system-herb';
 import shrubSystem from './l-system-shrub';
 import PixelTurtle from './pixel-turtle';
-
-import { getPlantDimensions, computeTotalSize } from './create-image-data';
 
 class PlantTexture {
   constructor({
@@ -21,34 +19,51 @@ class PlantTexture {
     this.context = this.canvas.getContext('2d');
   }
 
-  generate({ type, count, kinds }) {
+  getValue(fnOrVal, plant) {
+    if (typeof fnOrVal === 'function') return fnOrVal(plant);
+    return fnOrVal;
+  }
+
+  generatePlant({ type, count, kinds }) {
     count = count || 9;
-    const lsysmap = {
+    const defmap = {
       herb: herbSystem,
       shrub: shrubSystem,
     };
 
-    const lsys = lsysmap[type];
-    if (!lsys) return;
+    const definition = defmap[type];
+    if (!definition) return;
 
-    const [width, height] = getPlantDimensions(type);
+    this.generate(definition, { type, count, kinds });
+  }
+
+  generate(definition, plant) {
+    const { type, count, kinds } = plant;
+    const { width, height } = definition;
     const turtle = new PixelTurtle(width, height);
-    const actions = lsys.actions();
-    this.setup(type, kinds, count);
+    this.setup(kinds, count, width, height);
 
     for (let t = 0; t < kinds; t++) {
-      const plants = lSystem.toList(lsys.generate(t), count);
-      plants.forEach((plant, i) => {
-        turtle.reset();
-        turtle.perform(lsys.init(t));
-        turtle.perform(flatten(plant.split('').map(rule => actions[rule])));
-        this.renderPixels(`${type}.${t}.${i}`, turtle, i * width, t * height);
-      });
+      const getValueWithKind = v => this.getValue(v, t);
+      const {
+        init = [],
+        start = '',
+        rules = {},
+        actions = {} } = mapValues(definition, getValueWithKind);
+      const lsys = lSystem(start, rules, count);
+      lSystem
+        .toList(lsys, count)
+        .forEach((plant, i) => {
+          turtle.reset();
+          turtle.perform(init);
+          turtle.perform(flatten(plant.split('').map(rule => actions[rule] || [])));
+          this.renderPixels(`${type}.${t}.${i}`, turtle, i * width, t * height);
+        });
     }
   }
 
-  setup(type, rows, columns) {
-    const totalSize = computeTotalSize(type, rows, columns);
+  setup(rows, columns, width, height) {
+    const totalSize = [width * columns, height * rows];
     this.canvas.width = totalSize[0];
     this.canvas.height = totalSize[1];
   }
