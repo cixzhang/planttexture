@@ -89,20 +89,37 @@ class PixelTurtle {
   }
 
   perform(actions) {
-    actions.map((_action) => {
-      const action = [..._action];
-      const command = action.shift();
-      const params = action.map(param => {
-        if (typeof param === 'function') return param(this);
-        return param;
-      })
-      this[command](...params);
-    });
+    const iterable = this.iterable(actions);
+    while (!iterable.next().done) {
+      continue
+    }
     return this;
+  }
+
+  iterable(actions) {
+    return generatePerform(actions, this);
   }
 
   toJSON() {
     return pick(this, [ 'width', 'height', 'pixels', 'markers' ]);
+  }
+}
+
+function* generatePerform(_actions, context) {
+  const actions = [..._actions];
+  const performOne = (_action) => {
+    const action = [..._action];
+    const command = action.shift();
+    const params = action.map(param => {
+      if (typeof param === 'function') return param(context);
+      return param;
+    })
+    context[command](...params);
+  };
+
+  while (actions.length) {
+    const action = actions.shift();
+    yield performOne(action);
   }
 }
 
