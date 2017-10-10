@@ -8,9 +8,13 @@
   pre { cursor: text; }
 </style>
 
-<div>
+<div id="overview">
   <img id="image" />
   <img id="image-mini"/>
+</div>
+
+<div id="viewer">
+  <canvas id="viewer-canvas">
 </div>
 
 <pre>
@@ -48,10 +52,14 @@
 
 <script type="text/javascript">
   window.onload = () => {
+    var Turtle = PlantTexture.Turtle;
+    var LSystem = PlantTexture.lSystem;
+
     var image = document.getElementById('image');
     var mini = document.getElementById('image-mini');
     var description = document.getElementById('system-description');
     var actions_desc = document.getElementById('actions-description');
+    var viewer_canvas = document.getElementById('viewer_canvas');
     var error = document.getElementById('error');
     var plantTex = new PlantTexture({ name: 'gen' });
     var task = new Jot.Task();
@@ -73,15 +81,48 @@
         };
 
         mini.src = pngSource;
-        error.innerText = ''
+
+        // var viewer = initialize_viewer(lsys);
+
+        error.innerText = '';
       } catch(e) {
         console.log(e);
-        error.innerText = `Invalid: ${e.message}`
+        error.innerText = `Invalid: ${e.message}`;
+      }
+    }
+
+    function* initialize_viewer(desc) {
+      var i = 0;
+      var count = 9;
+      var lsystem = LSystem(desc.start, desc.rules);
+      var turtle = new Turtle(desc.width, desc.height);
+      var actions = desc.init;
+
+      yield render_step(turtle, actions);
+
+      var nextSys = lsystem.next()
+      while (!nextSys.done) {
+        let state = nextSys.value;
+        actions = PlantTexture.mapStateToActions(state, desc.actions);
+        yield render_step(turtle, actions);
+      }
+    }
+
+    function* render_step(turtle, actions) {
+      turtle.reset();
+      turtle.perform(data.desc.init);
+      var iter = turtle.iterable(actions);
+      var context = viewer_canvas.getContext('2d');
+
+      while (!iter.next().done) {
+        const imageData = new ImageData(turtle.pixels, width, height);
+        // TODO: update canvas context
+        yield null;
       }
     }
 
     description.addEventListener('input', render);
-    description.addEventListener('blur', () => Prism.highlightAll())
+    description.addEventListener('blur', () => Prism.highlightAll());
     render();
   }
 </script>

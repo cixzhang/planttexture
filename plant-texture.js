@@ -18234,6 +18234,10 @@ var   nativeMin$12 = Math.min;
   };
 
   class PlantTexture {
+    static mapStateToActions(state, actions) {
+      return flatten(state.split('').map(rule => actions[rule] || []));
+    }
+
     constructor({
       canvas,
       ImageDataClass = ImageData,
@@ -18284,7 +18288,7 @@ var   nativeMin$12 = Math.min;
           .forEach((plant, i) => {
             turtle.reset();
             turtle.perform(init);
-            turtle.perform(flatten(plant.split('').map(rule => actions[rule] || [])));
+            turtle.perform(PlantTexture.mapStateToActions(plant, actions));
             this.renderPixels(`${type}.${t}.${i}`, turtle, i * width, t * height);
           });
       }
