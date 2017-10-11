@@ -6,14 +6,30 @@
   img { image-rendering: pixelated; }
   code { outline: none; }
   pre { cursor: text; }
+  #viewer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    height: 400px;
+    width: 400px;
+  }
+
+  .hide {
+    display: none;
+  }
 </style>
+
+<button id="debug">debug</button>
 
 <div id="overview">
   <img id="image" />
   <img id="image-mini"/>
 </div>
 
-<div id="viewer">
+<div id="viewer" class="hide">
   <canvas id="viewer-canvas"></canvas>
   <button id="next-action">&gt;</button>
   <button id="next-view">&gt;&gt;</button>
@@ -65,6 +81,7 @@
     var viewer_canvas = document.getElementById('viewer_canvas');
     var next_action_button = document.getElementById('next_action');
     var next_view_button = document.getElementById('next_view_button');
+    var debug_button = document.getElementById('debug');
 
     var error = document.getElementById('error');
     var plantTex = new PlantTexture({ name: 'gen' });
@@ -136,18 +153,20 @@
       }
     }
 
-    function on_next_view() {
+    next_action_button.addEventListener('click', () => {
       if (!viewer) return;
       step = viewer.next();
-    }
+    });
 
-    function on_next_action() {
+    next_view_button.addEventListener('click', () => {
       if (!step) return;
       step.next();
-    }
+    });
 
-    next_action_button.addEventListener('click', on_next_action)
-    next_view_button.addEventListener('click', on_next_view)
+    debug_button.addEventListener('click', () => {
+      document.getElementById('viewer').classList.toggle('hide');
+    });
+
     description.addEventListener('input', render);
     description.addEventListener('blur', () => Prism.highlightAll());
     render();
