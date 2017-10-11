@@ -7,6 +7,8 @@
   code { outline: none; }
   pre { cursor: text; }
   #viewer {
+    background-color: white;
+    box-shadow: 1px 0px 8px rgba(0,0,0,0.1);
     position: absolute;
     top: 0;
     bottom: 0;
@@ -78,9 +80,9 @@
     var description = document.getElementById('system-description');
     var actions_desc = document.getElementById('actions-description');
 
-    var viewer_canvas = document.getElementById('viewer_canvas');
-    var next_action_button = document.getElementById('next_action');
-    var next_view_button = document.getElementById('next_view_button');
+    var viewer_canvas = document.getElementById('viewer-canvas');
+    var next_action_button = document.getElementById('next-action');
+    var next_view_button = document.getElementById('next-view');
     var debug_button = document.getElementById('debug');
 
     var error = document.getElementById('error');
@@ -122,21 +124,21 @@
       var count = 9;
       var lsystem = LSystem(desc.start, desc.rules);
       var turtle = new Turtle(desc.width, desc.height);
-      var actions = desc.init;
 
-      yield render_step(turtle, actions);
+      var done = false;
+      while (!done) {
+        let state = lsystem.next();
+        actions = PlantTexture.mapStateToActions(state.value, desc.actions);
 
-      var nextSys = lsystem.next()
-      while (!nextSys.done) {
-        let state = nextSys.value;
-        actions = PlantTexture.mapStateToActions(state, desc.actions);
+        turtle.reset();
+        turtle.perform(desc.init);
+
+        done = state.done;
         yield render_step(turtle, actions);
       }
     }
 
     function* render_step(turtle, actions) {
-      turtle.reset();
-      turtle.perform(data.desc.init);
       var iter = turtle.iterable(actions);
       var context = viewer_canvas.getContext('2d');
       var width = turtle.width * 8;
@@ -147,19 +149,19 @@
 
       while (!iter.next().done) {
         const imageData = new ImageData(turtle.pixels, turtle.width, turtle.height);
-        context.clearRect(0, width, height)
+        context.clearRect(0, 0, width, height)
         context.putImageData(imageData, 0, 0, 0, 0, width, height);
         yield null;
       }
     }
 
-    next_action_button.addEventListener('click', () => {
-      if (!viewer) return;
-      step = viewer.next();
+    next_view_button.addEventListener('click', () => {
+      if (!viewer || viewer.done) return;
+      step = viewer.next().value;
     });
 
-    next_view_button.addEventListener('click', () => {
-      if (!step) return;
+    next_action_button.addEventListener('click', () => {
+      if (!step || step.done) return;
       step.next();
     });
 
