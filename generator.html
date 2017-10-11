@@ -14,7 +14,9 @@
 </div>
 
 <div id="viewer">
-  <canvas id="viewer-canvas">
+  <canvas id="viewer-canvas"></canvas>
+  <button id="next-action">&gt;</button>
+  <button id="next-view">&gt;&gt;</button>
 </div>
 
 <pre>
@@ -59,10 +61,17 @@
     var mini = document.getElementById('image-mini');
     var description = document.getElementById('system-description');
     var actions_desc = document.getElementById('actions-description');
+
     var viewer_canvas = document.getElementById('viewer_canvas');
+    var next_action_button = document.getElementById('next_action');
+    var next_view_button = document.getElementById('next_view_button');
+
     var error = document.getElementById('error');
     var plantTex = new PlantTexture({ name: 'gen' });
     var task = new Jot.Task();
+
+    var viewer;
+    var step;
 
     function render() {
       try {
@@ -82,7 +91,7 @@
 
         mini.src = pngSource;
 
-        // var viewer = initialize_viewer(lsys);
+        viewer = initialize_viewer(lsys);
 
         error.innerText = '';
       } catch(e) {
@@ -113,14 +122,32 @@
       turtle.perform(data.desc.init);
       var iter = turtle.iterable(actions);
       var context = viewer_canvas.getContext('2d');
+      var width = turtle.width * 8;
+      var height = turtle.height * 8;
+
+      viewer_canvas.width = width;
+      viewer_canvas.height = height;
 
       while (!iter.next().done) {
-        const imageData = new ImageData(turtle.pixels, width, height);
-        // TODO: update canvas context
+        const imageData = new ImageData(turtle.pixels, turtle.width, turtle.height);
+        context.clearRect(0, width, height)
+        context.putImageData(imageData, 0, 0, 0, 0, width, height);
         yield null;
       }
     }
 
+    function on_next_view() {
+      if (!viewer) return;
+      step = viewer.next();
+    }
+
+    function on_next_action() {
+      if (!step) return;
+      step.next();
+    }
+
+    next_action_button.addEventListener('click', on_next_action)
+    next_view_button.addEventListener('click', on_next_view)
     description.addEventListener('input', render);
     description.addEventListener('blur', () => Prism.highlightAll());
     render();
