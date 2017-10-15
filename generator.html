@@ -9,18 +9,64 @@
   #viewer {
     background-color: white;
     box-shadow: 1px 0px 8px rgba(0,0,0,0.1);
-    position: absolute;
+    position: fixed;
     top: 0;
     bottom: 0;
-    left: 0;
     right: 0;
     margin: auto;
-    height: 400px;
     width: 400px;
+    text-align: center;
+    opacity: 0.75;
+    padding: 20px;
+    font-family: monospace;
+
+    display: flex;
+    flex-direction: column;
+  }
+
+  #viewer:hover {
+    opacity: 1;
   }
 
   .hide {
-    display: none;
+    display: none !important;
+  }
+
+  canvas {
+    image-rendering: pixelated;
+    flex: 0 0 128px;
+    width: 128px;
+    height: 128px;
+    display: block;
+    margin: 10px auto;
+  }
+
+  .active-action {
+    color: green;
+  }
+
+  #state {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: grey;
+  }
+
+  #action-list {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+  }
+
+  .info {
+    flex: 1;
+    overflow: auto;
+  }
+
+  #frame {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    color: brown;
   }
 </style>
 
@@ -32,9 +78,16 @@
 </div>
 
 <div id="viewer" class="hide">
+  <div id="frame"></div>
   <canvas id="viewer-canvas"></canvas>
-  <button id="next-action">&gt;</button>
-  <button id="next-view">&gt;&gt;</button>
+  <div class="buttons">
+    <button id="next-action">&gt;</button>
+    <button id="next-view">&gt;&gt;</button>
+  </div>
+  <pre id="state"></pre>
+  <div class="info">
+    <ol id="action-list"></ol>
+  </div>
 </div>
 
 <pre>
@@ -79,11 +132,14 @@
     var mini = document.getElementById('image-mini');
     var description = document.getElementById('system-description');
     var actions_desc = document.getElementById('actions-description');
+    var debug_button = document.getElementById('debug');
 
     var viewer_canvas = document.getElementById('viewer-canvas');
     var next_action_button = document.getElementById('next-action');
     var next_view_button = document.getElementById('next-view');
-    var debug_button = document.getElementById('debug');
+    var state_view = document.getElementById('state');
+    var action_list_view = document.getElementById('action-list');
+    var frame_view = document.getElementById('frame');
 
     var error = document.getElementById('error');
     var plantTex = new PlantTexture({ name: 'gen' });
@@ -124,34 +180,54 @@
       var count = 9;
       var lsystem = LSystem(desc.start, desc.rules);
       var turtle = new Turtle(desc.width, desc.height);
+      var context = viewer_canvas.getContext('2d');
 
       var done = false;
       while (!done) {
         let state = lsystem.next();
         actions = PlantTexture.mapStateToActions(state.value, desc.actions);
 
+        // Render debug text
+        state_view.innerText = state.value;
+        action_list_view.innerHTML = '';
+        actions.forEach((_action) => {
+          const action = [..._action];
+          const li = document.createElement('li');
+          const fn = action.shift();
+          li.innerText = `${fn}(${action.join(', ')})`;
+          action_list_view.appendChild(li);
+        });
+        frame_view.innerText = i;
+
+        context.clearRect(0, 0, viewer_canvas.width, viewer_canvas.height)
         turtle.reset();
         turtle.perform(desc.init);
 
         done = state.done;
-        yield render_step(turtle, actions);
+        yield render_step(turtle, actions, context);
+        i++
       }
     }
 
-    function* render_step(turtle, actions) {
+    function* render_step(turtle, actions, context) {
       var iter = turtle.iterable(actions);
-      var context = viewer_canvas.getContext('2d');
-      var width = turtle.width * 8;
-      var height = turtle.height * 8;
+      var width = turtle.width;
+      var height = turtle.height;
+      var i = 0;
 
       viewer_canvas.width = width;
       viewer_canvas.height = height;
 
       while (!iter.next().done) {
         const imageData = new ImageData(turtle.pixels, turtle.width, turtle.height);
-        context.clearRect(0, 0, width, height)
         context.putImageData(imageData, 0, 0, 0, 0, width, height);
+
+        const currentActive = document.querySelector('.active-action');
+        if (currentActive) currentActive.classList.remove('active-action');
+        action_list_view.children[i].classList.add('active-action');
+
         yield null;
+        i++;
       }
     }
 
