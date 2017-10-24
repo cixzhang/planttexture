@@ -38,4 +38,18 @@ describe('l-system', () => {
     expect(iterable.next().value).to.equal('yyx');
     expect(iterable.next().value).to.equal('yyix');
   });
+
+  it('handles t to t>x case', () => {
+    const iterable = lSystem('x', {
+      'x': 'd',
+      'd': 't',
+      't': 't>x',
+    });
+    
+    expect(iterable.next().value).to.equal('x');
+    expect(iterable.next().value).to.equal('d');
+    expect(iterable.next().value).to.equal('t');
+    expect(iterable.next().value).to.equal('t>x');
+    expect(iterable.next().value).to.equal('t>x>d');
+  });
 });
