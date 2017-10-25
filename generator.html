@@ -3,29 +3,23 @@
 <meta charset="utf-8">
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.8.1/themes/prism.css" />
 <style>
+  html, body, #container {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
   img { image-rendering: pixelated; }
   code { outline: none; }
   pre { cursor: text; }
   #viewer {
-    background-color: white;
-    box-shadow: 1px 0px 8px rgba(0,0,0,0.1);
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    margin: auto;
-    width: 400px;
     text-align: center;
-    opacity: 0.75;
-    padding: 20px;
+    padding: 10px;
     font-family: monospace;
-
+    flex: 1;
+    position: relative;
     display: flex;
     flex-direction: column;
-  }
-
-  #viewer:hover {
-    opacity: 1;
+    background: rgba(245, 242, 240, 0.52);
   }
 
   .hide {
@@ -68,55 +62,92 @@
     right: 12px;
     color: brown;
   }
+
+  #overview {
+    flex: 0 0 auto;
+    text-align: center;
+  }
+
+  #panel {
+    display: flex;
+    flex: 1;
+  }
+
+  #container {
+    display: flex;
+    flex-flow: column;
+  }
+
+  #debug {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  #source {
+    margin: 0;
+    flex: 1;
+    font-size: 0.8rem;
+    position: relative;
+  }
+
+  #error {
+    position: absolute;
+    top: 0;
+    color: red;
+  }
 </style>
 
-<button id="debug">debug</button>
-
-<div id="overview">
-  <img id="image" />
-  <img id="image-mini"/>
-</div>
-
-<div id="viewer" class="hide">
-  <div id="frame"></div>
-  <canvas id="viewer-canvas"></canvas>
-  <div class="buttons">
-    <button id="reset">reset</button>
-    <button id="next-action">&gt;</button>
-    <button id="next-view">&gt;&gt;</button>
+<div id="container">
+  <div id="overview">
+    <img id="image" />
+    <img id="image-mini"/>
   </div>
-  <pre id="state"></pre>
-  <div class="info">
-    <ol id="action-list"></ol>
-  </div>
-</div>
 
-<pre>
+<div id="panel">
+  <pre id="source">
+  <button id="debug">debug</button>
   <code id="system-description" class="language-javascript" contenteditable>{
-    width: 16,
-    height: 16,
-    init: [
-      ['eyedrop', [0, 0, 0, 255]],
-      ['moveTo', t => [Math.floor(t.width / 2), t.height - 1]],
-      ['turnTo', [0, -1]],
-    ],
-    start: 'x',
-    rules: {
-      x: 'd',
-      d: 't',
-      t: 'tx',
-    },
-    actions: {
-      'd': [['draw', 1]],
-      'm': [['move', 1]],
-      '>': [['turn', Math.PI / 6]],
-      '<': [['turn', -Math.PI / 6]],
-      '[': [['save']],
-      ']': [['load']],
-      't': [['draw', 2]],
-    }
-  }</code>
-</pre>
+      width: 16,
+      height: 16,
+      init: [
+        ['eyedrop', [0, 0, 0, 255]],
+        ['moveTo', t => [Math.floor(t.width / 2), t.height - 1]],
+        ['turnTo', [0, -1]],
+      ],
+      start: 'x',
+      rules: {
+        x: 'd',
+        d: 't',
+        t: 'tx',
+      },
+      actions: {
+        'd': [['draw', 1]],
+        'm': [['move', 1]],
+        '>': [['turn', Math.PI / 6]],
+        '<': [['turn', -Math.PI / 6]],
+        '[': [['save']],
+        ']': [['load']],
+        't': [['draw', 2]],
+      }
+    }</code>
+  </pre>
+
+  <div id="viewer" class="hide">
+    <div id="frame"></div>
+    <canvas id="viewer-canvas"></canvas>
+    <div class="buttons">
+      <button id="reset">reset</button>
+      <button id="next-action">&gt;</button>
+      <button id="next-view">&gt;&gt;</button>
+    </div>
+    <pre id="state"></pre>
+    <div class="info">
+      <ol id="action-list"></ol>
+    </div>
+  </div>
+</div>
+</div>
 <div id="error"></div>
 
 <script type="text/javascript" src="https://cixzhang.github.io/Jot/jot.js"></script>
