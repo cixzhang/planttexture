@@ -182,6 +182,25 @@
     var step;
     var input;
 
+    var store = localStorage;
+
+    function initialize() {
+      const existing = getGeneratorInput();
+      if (existing) {
+        description.innerText = existing;
+        Prism.highlightAll();
+      }
+      render();
+    }
+
+    function getGeneratorInput(){
+      return localStorage.getItem('gen-desc');
+    }
+
+    function setGeneratorInput(inputAsText) {
+      localStorage.setItem('gen-desc', inputAsText);
+    }
+
     function render() {
       try {
         var func = `(${description.innerText})`;
@@ -189,6 +208,7 @@
         input = task.o()
 
         if (!input) return;
+        setGeneratorInput(description.innerText);
 
         plantTex.generate(input, { type: 'gen', count: 9, kinds: 1 });
         var pngSource = plantTex.toPNG();
@@ -295,6 +315,6 @@
 
     description.addEventListener('input', render);
     description.addEventListener('blur', () => Prism.highlightAll());
-    render();
+    initialize();
   }
 </script>
