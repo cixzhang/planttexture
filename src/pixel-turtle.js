@@ -65,12 +65,19 @@ class PixelTurtle {
   }
 
   save() {
-    this.saved.push([...this.position]);
+    this.saved.push({
+      position: this.position,
+      direction: this.direction,
+      color: this.color,
+    });
     return this;
   }
 
   load() {
-    this.position = this.saved.pop();
+    const saveData = this.saved.pop();
+    this.position = saveData.position;
+    this.direction = saveData.direction;
+    this.color = saveData.color;
     return this;
   }
 
